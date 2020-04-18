@@ -22,7 +22,7 @@ while True:
     string = pyperclip.paste()
     # 如果剪切板上的内容发生了变化(与剪切板上的原内容不一致)
     if string != last_string and string != '':
-        temp_string = "<center>" + string + "</center>"
+        temp_string = "<p align = \"center\">" + string + "</p>"
         pyperclip.copy(temp_string)
         string = pyperclip.paste()
         print(temp_string)
