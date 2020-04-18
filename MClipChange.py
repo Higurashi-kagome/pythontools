@@ -40,7 +40,7 @@ while True:
         temp_list2 = re.findall(r";\" />",string)
         # 如果有效部分获取成功
         if temp_list1 and temp_list2:
-            # 在有效部分前后添加使之居中的HTML语法并赋值给temp_string
+            # 在有效部分前后添加使之居中的HTML语法并赋值给temp_string,如不希望图片大小为80%，可在此行修改"80%"
             temp_string = "<div align=center>" + temp_list1[0] +"80%" + temp_list2[0] + "</div>"
             pyperclip.copy(temp_string)
             string = pyperclip.paste()
