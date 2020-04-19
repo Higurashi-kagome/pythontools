@@ -5,31 +5,35 @@ headline = ['#','##','###','####','#####','######']
 lines_in_file = []
 
 """生成目录列表中的某一项"""
-def creat_directory_line(line,headline_mark):
+def creat_directory_line(line,headline_mark,i):
     if headline_mark == '#':
-        return '[' + line[2:-1] + '](#' + line[2:-1] + ")\n\n"
+        return '<a href="#' + str(i) + '">' + line[2:-1] + "</a>\n\n"
     elif headline_mark == '##':
         #&emsp;为Markdown中的一种缩进，这里不直接用空格作为缩进是因为多个空格一起出现可能会生成代码块，引发歧义
-        return '&emsp;[' + line[3:-1] + '](#' + line[3:-1] + ")\n\n"
+        return '&emsp;<a href="#' + str(i) + '">' + line[3:-1] + "</a>\n\n"
     elif headline_mark == '###':
-        return '&emsp;&emsp;[' + line[4:-1] + '](#' + line[4:-1] + ")\n\n"
+        return '&emsp;&emsp;<a href="#' + str(i) + '">' + line[4:-1] + "</a>\n\n"
     elif headline_mark == '####':
-        return '&emsp;&emsp;&emsp;[' + line[5:-1] + '](#' + line[5:-1] + ")\n\n"
+        return '&emsp;&emsp;&emsp;<a href="#' + str(i) + '">' + line[5:-1] + "</a>\n\n"
     elif headline_mark == '#####':
-        return '&emsp;&emsp;&emsp;&emsp;[' + line[6:-1] + '](#' + line[6:-1] + ")\n\n"
+        return '&emsp;&emsp;&emsp;&emsp;<a href="#' + str(i) + '">' + line[6:-1] + "</a>\n\n"
     elif headline_mark == '######':
-        return '&emsp;&emsp;&emsp;&emsp;&emsp;[' + line[7:-1] + '](#' + line[7:-1] + ")\n\n"
+        return '&emsp;&emsp;&emsp;&emsp;&emsp;<a href="#' + str(i) + '">' + line[7:-1] + "</a>\n\n"
 
 """生成目录列表"""
 def creat_directory(f):
+    i = 0
     directory = []
+    directory.append('## <a name="index">Index</a>\n')
     for line in f:
         lines_in_file.append(line)
     f.close()
-    for line in lines_in_file:
-        splitedline = line.lstrip().split(' ')
+    for j in range(len(lines_in_file)):
+        splitedline = lines_in_file[j].lstrip().split(' ')
         if splitedline[0] in headline:
-            directory.append(creat_directory_line(line,splitedline[0]))
+            directory.append(creat_directory_line(lines_in_file[j],splitedline[0],i))
+            lines_in_file[j] = lines_in_file[j].replace(splitedline[0] + ' ',splitedline[0] + ' ' + '<a name="' + str(i) + '">')[:-1] + '</a><a style="float:right;text-decoration:none;" href="#index">[Top]</a>' + "\n"
+            i = i + 1
     return directory
 
 """以目录列表为参数生成添加目录的文件"""
