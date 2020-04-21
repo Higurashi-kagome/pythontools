@@ -19,6 +19,6 @@
 
 [为本地Markdown文件的标题编号](https://github.com/liuhao326/pythontools/blob/master/AddTitleNumber.py)
 
-使用：[示例](https://www.cnblogs.com/Higurashi-kagome/p/12747857.html)
+使用：[示例](https://www.cnblogs.com/Higurashi-kagome/p/12747857.html#使用实例)
 
 如有帮助，请给个小星星！欢迎PR， 有什么问题也可以提 issue。
