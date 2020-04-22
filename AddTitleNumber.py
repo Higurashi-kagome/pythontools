@@ -15,9 +15,9 @@ def add_number_for_line(line_which_is_title,title_sign):
         return titles_added_number[0]
     else:
         if len(title_sign) <= len(title_sign_list[0]):#如果line_which_is_title是一级标题
-            for insert in titles_added_number[::-1]:#倒序遍历产生了编号的所有标题
-                if len(insert.lstrip().split(' ',1)[0]) >= len(title_sign_list[0]):#如果发现一级标题
-                    titles_added_number.append(line_which_is_title.replace(title_sign + ' ',title_sign + ' ' + str(int(insert.lstrip().split(' ',1)[1][0]) + 1) + '. '))
+            for title in titles_added_number[::-1]:#倒序遍历产生了编号的所有标题
+                if len(title.lstrip().split(' ',1)[0]) <= len(title_sign_list[0]):#如果发现一级标题
+                    titles_added_number.append(line_which_is_title.replace(title_sign + ' ',title_sign + ' ' + str(int(title.lstrip().split(' ',1)[1][0]) + 1) + '. '))
                     return titles_added_number[-1]
         elif len(title_sign_list[-2]) <= len(title_sign_list[0]):#如果line_which_is_title的上一级标题为一级标题（#号与第一个标题的#号相同或更少的标题）
             titles_added_number.append(line_which_is_title.replace(title_sign + ' ',title_sign + ' ' + titles_added_number[-1].lstrip().split(' ')[1] + '1 '))
@@ -29,9 +29,9 @@ def add_number_for_line(line_which_is_title,title_sign):
             titles_added_number.append(line_which_is_title.replace(title_sign + ' ',title_sign + ' ' + titles_added_number[-1].lstrip().split(' ')[1][:-1] +str(int(titles_added_number[-1].lstrip().split(' ')[1][-1]) + 1) + ' '))
             return titles_added_number[-1]
         elif len(title_sign_list[-1]) < len(title_sign_list[-2]):#如果line_which_is_title的上一个标题比它更低
-            for insert in titles_added_number[::-1]:#倒序遍历产生了编号的所有标题
-                if len(insert.lstrip().split(' ',1)[0]) == len(title_sign):#如果发现等级别的标题
-                    titles_added_number.append(line_which_is_title.replace(title_sign + ' ',title_sign + ' ' + insert.lstrip().split(' ')[1][:-1] + str(int(insert.lstrip().split(' ')[1][-1]) + 1) + ' '))
+            for title in titles_added_number[::-1]:#倒序遍历产生了编号的所有标题
+                if len(title.lstrip().split(' ',1)[0]) == len(title_sign):#如果发现等级别的标题
+                    titles_added_number.append(line_which_is_title.replace(title_sign + ' ',title_sign + ' ' + title.lstrip().split(' ')[1][:-1] + str(int(title.lstrip().split(' ')[1][-1]) + 1) + ' '))
                     return titles_added_number[-1]
 
 """给传入内容添加编号"""
