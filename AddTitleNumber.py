@@ -4,35 +4,35 @@ import os
 headline = ['#','##','###','####','#####','######']
 title_sign_list = []
 """用于判断标题产生环境"""
-insertion = []
+titles_added_number = []
 """保存嵌入了编号的标题，用于产生新编号"""
 
 """给某一行添加编号"""
 def add_number_for_line(line_which_is_title,title_sign):
     title_sign_list.append(title_sign)
     if len(title_sign_list) == 1:#如果line_which_is_title是第一个标题
-        insertion.append(line_which_is_title.replace(title_sign + ' ',title_sign + ' 1. '))
-        return insertion[0]
+        titles_added_number.append(line_which_is_title.replace(title_sign + ' ',title_sign + ' 1. '))
+        return titles_added_number[0]
     else:
-        if len(title_sign) == len(title_sign_list[0]):#如果line_which_is_title是一级标题（与第一个标题等级别）
-            for insert in insertion[::-1]:#倒序遍历产生了编号的所有标题
-                if len(insert.lstrip().split(' ',1)[0]) == len(title_sign):#如果发现等级别的标题
-                    insertion.append(line_which_is_title.replace(title_sign + ' ',title_sign + ' ' + str(int(insert.lstrip().split(' ',1)[1][0]) + 1) + '. '))
-                    return insertion[-1]
-        if len(title_sign_list[-2]) == len(title_sign_list[0]):#如果line_which_is_title的上一级标题为一级标题（与第一个标题等级别）
-            insertion.append(line_which_is_title.replace(title_sign + ' ',title_sign + ' ' + insertion[-1].lstrip().split(' ')[1] + '1 '))
-            return insertion[-1]
+        if len(title_sign) <= len(title_sign_list[0]):#如果line_which_is_title是一级标题
+            for insert in titles_added_number[::-1]:#倒序遍历产生了编号的所有标题
+                if len(insert.lstrip().split(' ',1)[0]) >= len(title_sign_list[0]):#如果发现一级标题
+                    titles_added_number.append(line_which_is_title.replace(title_sign + ' ',title_sign + ' ' + str(int(insert.lstrip().split(' ',1)[1][0]) + 1) + '. '))
+                    return titles_added_number[-1]
+        elif len(title_sign_list[-2]) <= len(title_sign_list[0]):#如果line_which_is_title的上一级标题为一级标题（#号与第一个标题的#号相同或更少的标题）
+            titles_added_number.append(line_which_is_title.replace(title_sign + ' ',title_sign + ' ' + titles_added_number[-1].lstrip().split(' ')[1] + '1 '))
+            return titles_added_number[-1]
         elif len(title_sign_list[-1]) > len(title_sign_list[-2]):#如果line_which_is_title的上一个标题比它更高
-            insertion.append(line_which_is_title.replace(title_sign + ' ',title_sign + ' ' + insertion[-1].lstrip().split(' ')[1] + '.1 '))
-            return insertion[-1]
+            titles_added_number.append(line_which_is_title.replace(title_sign + ' ',title_sign + ' ' + titles_added_number[-1].lstrip().split(' ')[1] + '.1 '))
+            return titles_added_number[-1]
         elif len(title_sign_list[-1]) == len(title_sign_list[-2]):#如果line_which_is_title与上一个标题等级别
-            insertion.append(line_which_is_title.replace(title_sign + ' ',title_sign + ' ' + insertion[-1].lstrip().split(' ')[1][:-1] +str(int(insertion[-1].lstrip().split(' ')[1][-1]) + 1) + ' '))
-            return insertion[-1]
+            titles_added_number.append(line_which_is_title.replace(title_sign + ' ',title_sign + ' ' + titles_added_number[-1].lstrip().split(' ')[1][:-1] +str(int(titles_added_number[-1].lstrip().split(' ')[1][-1]) + 1) + ' '))
+            return titles_added_number[-1]
         elif len(title_sign_list[-1]) < len(title_sign_list[-2]):#如果line_which_is_title的上一个标题比它更低
-            for insert in insertion[::-1]:#倒序遍历产生了编号的所有标题
+            for insert in titles_added_number[::-1]:#倒序遍历产生了编号的所有标题
                 if len(insert.lstrip().split(' ',1)[0]) == len(title_sign):#如果发现等级别的标题
-                    insertion.append(line_which_is_title.replace(title_sign + ' ',title_sign + ' ' + insert.lstrip().split(' ')[1][:-1] + str(int(insert.lstrip().split(' ')[1][-1]) + 1) + ' '))
-                    return insertion[-1]
+                    titles_added_number.append(line_which_is_title.replace(title_sign + ' ',title_sign + ' ' + insert.lstrip().split(' ')[1][:-1] + str(int(insert.lstrip().split(' ')[1][-1]) + 1) + ' '))
+                    return titles_added_number[-1]
 
 """给传入内容添加编号"""
 def create_lines_with_number(lines_in_file):
