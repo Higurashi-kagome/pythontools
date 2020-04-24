@@ -6,10 +6,12 @@ title_sign_list = []
 """用于判断标题产生环境"""
 titles_added_number = []
 """保存嵌入了编号的标题，用于产生新编号"""
+is_continue = 'N'
 
 
 """给某一行添加编号"""
 def add_number_for_line(line_which_is_title,title_sign):
+    global is_continue
     title_sign_list.append(title_sign)
     if len(title_sign_list) == 1:#如果line_which_is_title是第一个标题
         titles_added_number.append(line_which_is_title.replace(title_sign + ' ',title_sign + ' 1. '))
@@ -17,9 +19,21 @@ def add_number_for_line(line_which_is_title,title_sign):
     else:
         for title in titles_added_number[::-1]:
             if len(title.lstrip().split(' ')[1]) == 2:#如果发现一级标题
-                if len(title_sign) <= len(title.lstrip().split(' ')[0]):#如果line_which_is_title是一级标题
+                if len(title_sign) == len(title.lstrip().split(' ')[0]):#如果line_which_is_title是一级标题（与第一个标题级别相同）
                     titles_added_number.append(line_which_is_title.replace(title_sign + ' ',title_sign + ' ' + str(int(title.lstrip().split(' ',1)[1][0]) + 1) + '. '))
                     return titles_added_number[-1]
+                elif len(title_sign) < len(title.lstrip().split(' ')[0]):#如果line_which_is_title是一级标题（比第一个标题级别更高）
+                    if is_continue != 'Y':
+                        print('Markdown文件中的：' + title.strip() + "\n似乎不规范\n建议检查")
+                        is_continue = input('是否忽略此类警告并继续？（Y/N）')
+                    if is_continue.strip() == 'Y':
+                        titles_added_number.append(line_which_is_title.replace(title_sign + ' ',title_sign + ' ' + str(int(title.lstrip().split(' ',1)[1][0]) + 1) + '. '))
+                        return titles_added_number[-1]
+                    elif is_continue.strip() == 'N':
+                        os._exit(0)
+                    else:
+                        print('接收到Y/N以外的输入，默认退出')
+                        os._exit(0)
                 else:
                     break
         if len(titles_added_number[-1].lstrip().split(' ')[1]) == 2:#如果line_which_is_title的上一级标题为一级标题
@@ -34,8 +48,17 @@ def add_number_for_line(line_which_is_title,title_sign):
         elif len(title_sign_list[-1]) < len(title_sign_list[-2]):#如果line_which_is_title的上一个标题比它更低
             for title in titles_added_number[::-1]:
                 if len(title.lstrip().split(' ')[1]) == 2:#如果先发现一级标题
-                    titles_added_number.append(line_which_is_title.replace(title_sign + ' ',title_sign + ' ' + str(int(title.lstrip().split(' ',1)[1][0]) + 1) + '. '))
-                    return titles_added_number[-1]
+                    if is_continue != 'Y':
+                        print('Markdown文件中的：' + title.strip() + "\n似乎不规范\n建议检查")
+                        is_continue = input('是否忽略此类警告并继续？（Y/N）')
+                    if is_continue.strip() == 'Y':
+                        titles_added_number.append(line_which_is_title.replace(title_sign + ' ',title_sign + ' ' + str(int(title.lstrip().split(' ',1)[1][0]) + 1) + '. '))
+                        return titles_added_number[-1]
+                    elif is_continue.strip() == 'N':
+                        os._exit(0)
+                    else:
+                        print('接收到Y/N以外的输入，默认退出')
+                        os._exit(0)
                 if len(title.lstrip().split(' ')[0]) == len(title_sign):#如果找到等级别标题
                     titles_added_number.append(line_which_is_title.replace(title_sign + ' ',title_sign + ' ' + title.lstrip().split(' ')[1][:-1] + str(int(title.lstrip().split(' ')[1][-1]) + 1) + ' '))
                     return titles_added_number[-1]
