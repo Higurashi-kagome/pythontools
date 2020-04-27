@@ -91,5 +91,9 @@ def create_markdown_file_with_number(f):
 
 
 file_name = sys.argv[1]
-with open(file_name,'r',encoding='utf-8') as f:
-    create_markdown_file_with_number(f)
+try:
+    with open(file_name,'r',encoding='utf-8') as f:
+        create_markdown_file_with_number(f)
+except:
+    msg = "未找到文件"
+    print(msg)
