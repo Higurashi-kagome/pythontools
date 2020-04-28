@@ -24,7 +24,7 @@ def creat_directory_line(line,headline_mark,i):
 def creat_directory(f):
     i = 0
     directory = []
-    directory.append('## <a name="index">Index</a>\n')
+    directory.append('<a name="index">**Index**</a>\n')
     for line in f:
         lines_in_file.append(line)
     f.close()
