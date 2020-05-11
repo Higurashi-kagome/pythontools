@@ -55,21 +55,21 @@ python main.py
 
 程序会提示登录，登录成功后会输出书架并提示输入书本id(书名前面的那一串数字)：
 
-![image-20200511193648172](C:\Users\liuhao\AppData\Roaming\Typora\typora-user-images\image-20200511193648172.png)
+![GIF 2020-5-11 20-25-36login](C:\Users\liuhao\Documents\GitHub\pythontools\wereader\GIF 2020-5-11 20-25-36login.gif)
 
 输入id后会列出操作指南：
 
-![image-20200511193729546](C:\Users\liuhao\AppData\Roaming\Typora\typora-user-images\image-20200511193729546.png)
+![GIF 2020-5-11 20-27-37guide](C:\Users\liuhao\Documents\GitHub\pythontools\wereader\GIF 2020-5-11 20-27-37guide.gif)
 
 这时候有两类操作可以选择：`print`选项的功能是输出内容到控制台并复制到剪切板；`push`选项的功能是将内容追加到文件末尾。
 
 比如，现在想要将这本书的想法输出到控制台并复制到剪切板，只需要输入`print 2`再回车:
 
-![GIF 2020-5-11 20-03-49print](C:\Users\liuhao\Desktop\GIF 2020-5-11 20-03-49print.gif)
+![GIF 2020-5-11 20-03-49print](C:\Users\liuhao\Documents\GitHub\pythontools\wereader\GIF 2020-5-11 20-03-49print.gif)
 
 同样，如果想要将想法追加到文件，输入`push 2`即可：
 
-![GIF 2020-5-11 19-57-02push效果](C:\Users\liuhao\Desktop\GIF 2020-5-11 19-57-02push效果.gif)
+![GIF 2020-5-11 19-57-02push](C:\Users\liuhao\Documents\GitHub\pythontools\wereader\GIF 2020-5-11 19-57-02push.gif)
 
 至于“个人最新标注”，是用来随时输出新标注(而不让内容重复)的功能。
 
@@ -105,5 +105,7 @@ hotmarks_number = {'pre': "`",   'suf': "`  "}#热门标注标注人数前后缀
 变量`thought_style`、`hotmarks_number`类似，分别用于设置想法和热门标注人数的前后缀。
 
 ## 补充
+
+项目托管于[GitHub](https://github.com/liuhao326/pythontools/tree/master/wereader)
 
 欢迎PR或star，有什么问题也可以提 issue。
