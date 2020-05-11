@@ -16,7 +16,6 @@
 
 针对上面所获取的大多数内容，使用时有两方面的操作选择：一是输出到控制台并复制到剪切板；二是追加到指定文件。
 
-
 主要代码见`wereader.py`
 
 ## 如何运行
@@ -110,7 +109,7 @@ hotmarks_number = {'pre': "`",   'suf': "`  "}#热门标注标注人数前后缀
 
 项目托管于[GitHub](https://github.com/liuhao326/pythontools/tree/master/wereader)
 
-如果gif动画没有播放，可以先打包下载再打开Markdown。
+如果gif动画没有播放，可以先打包下载再打开Markdown，或到[这里](https://www.cnblogs.com/Higurashi-kagome/p/12872060.html)查看。
 
 欢迎PR和star，有什么问题也可以提 issue。
 
