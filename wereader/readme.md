@@ -113,3 +113,8 @@ hotmarks_number = {'pre': "`",   'suf': "`  "}#热门标注标注人数前后缀
 如果gif动画没有播放，可以先打包下载再打开Markdown。
 
 欢迎PR和star，有什么问题也可以提 issue。
+
+## License
+
+[The MIT License (MIT)](http://opensource.org/licenses/MIT)
+
