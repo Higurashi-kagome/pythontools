@@ -57,9 +57,11 @@ python main.py
 
 ![GIF 2020-5-11 20-25-36login](C:\Users\liuhao\Documents\GitHub\pythontools\wereader\GIF 2020-5-11 20-25-36login.gif)
 
+![2020-05-11 204641login](C:\Users\liuhao\Documents\GitHub\pythontools\wereader\2020-05-11 204641login.png)
+
 输入id后会列出操作指南：
 
-![GIF 2020-5-11 20-27-37guide](C:\Users\liuhao\Documents\GitHub\pythontools\wereader\GIF 2020-5-11 20-27-37guide.gif)
+![2020-05-11 204408guide](C:\Users\liuhao\Documents\GitHub\pythontools\wereader\2020-05-11 204408guide.png)
 
 这时候有两类操作可以选择：`print`选项的功能是输出内容到控制台并复制到剪切板；`push`选项的功能是将内容追加到文件末尾。
 
@@ -108,4 +110,6 @@ hotmarks_number = {'pre': "`",   'suf': "`  "}#热门标注标注人数前后缀
 
 项目托管于[GitHub](https://github.com/liuhao326/pythontools/tree/master/wereader)
 
-欢迎PR或star，有什么问题也可以提 issue。
+如果gif动画没有播放，可以先打包下载再打开Markdown。
+
+欢迎PR和star，有什么问题也可以提 issue。
