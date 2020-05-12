@@ -51,6 +51,7 @@ def print_and_copy(res):
 
 """获取标注(md)"""
 def get_mark(bookId):
+    res = ''
     is_print_all = input('选择：所有标注/指定章节的标注(1/2)?\n')
     if is_print_all.strip() == '1':#如果选择输出所有标注
         way_to_print_chapter = input('选择：包含所有标题/只包含有标注的标题(1/2)?\n')
@@ -62,13 +63,17 @@ def get_mark(bookId):
             print('其他指令，默认包含所有标题\n')
             res = get_bookmarklist(bookId)
     elif is_print_all.strip() == '2':#如果选择输出指定章节的标注
-        sorted_chapters = get_sorted_chapters(bookId)
-        for chapter in sorted_chapters:
-            print(str(chapter[0]) + ' '*(5 - len(str(chapter[0]))) + chapter[2])
-        chapterUid = int(input('输入章节ID：\n'))
-        res = get_bookmarklist(bookId,is_all_chapter = 1,chapterUid=chapterUid)
+        #输出章节id和章节名
+        print_chapterUid_and_title(bookId)
+        #接受章节id并去除空符
+        chapterUid_str = input('输入章节ID：\n').replace(' ','')
+        print('获取中...')
+        #遍历所有章节id
+        for chapterUid_s in chapterUid_str.split(','):
+            chapterUid = int(chapterUid_s)
+            res += get_bookmarklist(bookId,is_all_chapter = 1,chapterUid=chapterUid)
     else:
-        print('其他指令，默认包含所有标注\n')
+        print('其他指令，默认返回所有标注\n')
         res = get_bookmarklist(bookId)
     return res
 
@@ -119,7 +124,7 @@ def main(bookId):
     bookId = bookId
     while True:
         y = print_guide().replace(' ','').lower()
-        if y[:-1] == 'print':
+        if y[:5] == 'print':
             if y == 'print1':
                 res = get_mark(bookId)
                 print_and_copy(res)
@@ -160,7 +165,7 @@ def main(bookId):
             elif y == 'print8':
                 print_books_directly(userVid=USERVID)
                 print('**********************************************************')
-        elif y[:-1] == 'push':
+        elif y[:4] == 'push':
             if y == 'push1':
                 res = get_mark(bookId)
                 push_to_file(res)

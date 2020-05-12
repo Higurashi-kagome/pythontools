@@ -20,10 +20,10 @@ from itertools import chain
 requests.packages.urllib3.disable_warnings()
 Book = namedtuple('Book',['bookId','title','author','cover','category'])
 
-level1 = '## '#(微信读书)一级标题
-level2 = '### '#二级标题
+level1 = '## ◆ '#(微信读书)一级标题
+level2 = '### ◆ '#二级标题
 level3 = '#### '#三级标题
-style1 = {'pre': "",   'suf': ""}#(微信读书)红色下划线
+style1 = {'pre': "#### ",   'suf': ""}#(微信读书)红色下划线
 style2 = {'pre': "**",   'suf': "**"}#橙色背景色
 style3 = {'pre': "",   'suf': ""}#蓝色波浪线
 thought_style = {'pre': "```\n",   'suf': "\n```"}#想法前后缀
@@ -341,6 +341,11 @@ def print_books_as_tree(userVid=USERVID):
         print('    ┃          ')
         print('    ┃          ')
     return ''
+
+def print_chapterUid_and_title(bookId):
+    sorted_chapters = get_sorted_chapters(bookId)
+    for chapter in sorted_chapters:
+        print(str(chapter[0]) + ' '*(5 - len(str(chapter[0]))) + chapter[2])
 
 """按时间返回新内容"""
 def get_new_content_bytime(bookId):
