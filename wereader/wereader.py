@@ -20,9 +20,9 @@ from itertools import chain
 requests.packages.urllib3.disable_warnings()
 Book = namedtuple('Book',['bookId','title','author','cover','category'])
 
-level1 = '##'#(微信读书)一级标题
-level2 = '###'#二级标题
-level3 = '####'#三级标题
+level1 = '## '#(微信读书)一级标题
+level2 = '### '#二级标题
+level3 = '#### '#三级标题
 style1 = {'pre': "",   'suf': ""}#(微信读书)红色下划线
 style2 = {'pre': "**",   'suf': "**"}#橙色背景色
 style3 = {'pre': "",   'suf': ""}#蓝色波浪线
@@ -54,11 +54,11 @@ def set_content_style(style,text):
 def set_chapter_level(level):
     global level1,level2,level3
     if level == 1:
-        return level1 + ' '
+        return level1
     elif level == 2:
-        return level2 + ' '
+        return level2
     elif level == 3:
-        return level3 + ' '
+        return level3
 
 def set_thought_style(text):
     global thought_style
