@@ -54,23 +54,21 @@ python main.py
 
 程序会提示登录，登录成功后会输出书架并提示输入书本id(书名前面的那一串数字)：
 
-![](login.gif)
-
-![](login.png)
+![](https://img2020.cnblogs.com/blog/1934175/202005/1934175-20200511212839422-1766996009.gif)
 
 输入id后会列出操作指南：
 
-![](guide.png)
+![](https://img2020.cnblogs.com/blog/1934175/202005/1934175-20200511212905982-1293929952.png)
 
 这时候有两类操作可以选择：`print`选项的功能是输出内容到控制台并复制到剪切板；`push`选项的功能是将内容追加到文件末尾。
 
 比如，现在想要将这本书的想法输出到控制台并复制到剪切板，只需要输入`print 2`再回车:
 
-![](print.gif)
+![](https://img2020.cnblogs.com/blog/1934175/202005/1934175-20200511212918007-526172681.gif)
 
 同样，如果想要将想法追加到文件，输入`push 2`即可：
 
-![](push.gif)
+![](https://img2020.cnblogs.com/blog/1934175/202005/1934175-20200511212927327-461054829.gif)
 
 至于“个人最新标注”，是用来随时输出新标注(而不让内容重复)的功能。
 
@@ -109,7 +107,7 @@ hotmarks_number = {'pre': "`",   'suf': "`  "}#热门标注标注人数前后缀
 
 项目托管于[GitHub](https://github.com/liuhao326/pythontools/tree/master/wereader)
 
-如果gif动画没有播放，可以先打包下载再打开Markdown，或到[这里](https://www.cnblogs.com/Higurashi-kagome/p/12872060.html)查看。
+如果gif动画没有播放，可以到[这里](https://www.cnblogs.com/Higurashi-kagome/p/12872060.html)查看。
 
 欢迎PR和star，有什么问题也可以提 issue。
 
