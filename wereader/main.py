@@ -2,11 +2,9 @@
 # -*- coding: UTF-8 -*-
 
 """
-@project: PyCharm
-@file: pyqt_gui.py
-@author: Shengqiang Zhang
-@time: 2020/4/11 21:14
-@mail: sqzhang77@gmail.com
+@file: main.py
+@author: liuhao326
+@time: 2020/5/11 21:14
 """
 
 from wereader import *
@@ -53,9 +51,9 @@ def print_and_copy(res):
 
 """获取标注(md)"""
 def get_mark(bookId):
-    way_to_print_chapter = input('选择：包含所有标题/只包含有标注的标题(1/2)?\n')
     is_print_all = input('选择：所有标注/指定章节的标注(1/2)?\n')
     if is_print_all.strip() == '1':#如果选择输出所有标注
+        way_to_print_chapter = input('选择：包含所有标题/只包含有标注的标题(1/2)?\n')
         if way_to_print_chapter.strip() == '1':#如果选择输出所有标题
             res = get_bookmarklist(bookId)
         elif way_to_print_chapter.strip() == '2':#如果选择只输出包含标注的标题
