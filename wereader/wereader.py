@@ -151,14 +151,14 @@ def get_bookmarklist(bookId,is_all_chapter=1,chapterUid=-5):
     url = "https://i.weread.qq.com/book/bookmarklist?bookId=" + str(bookId)
     data = request_data(url)
     """处理数据，生成笔记"""
+    res = ''
     if chapterUid < 0:#生成全部标注
         res = get_md_str_from_data(data,is_all_chapter = is_all_chapter)
-        if res == '\n':#如果在书本中未找到标注
-            print('书中无标注')
+        if res == '':#如果在书本中未找到标注
+            print('书中无标注/获取出错')
             return ''
     else:#如果传入了chapterUid，生成指定章节的标注
         sorted_chapters = get_sorted_chapters(bookId)
-        res = '\n'
         #遍历章节
         for chapter in sorted_chapters:
             if chapter[0] == chapterUid:#找到指定章节
@@ -170,8 +170,8 @@ def get_bookmarklist(bookId,is_all_chapter=1,chapterUid=-5):
                 for text in sorted_contents[chapter[0]]:
                     res += set_content_style(text[1],text[2]) + '\n\n'
                 break
-        if res == '\n':#如果标注res无新内容（在书本中未找到指定章节）
-            print('未找到该章节')
+        if res == '':#如果标注res无新内容（在书本中未找到指定章节）
+            print('未找到该章节/获取出错')
             return ''
     return res
 
