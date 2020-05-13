@@ -66,7 +66,7 @@ def get_mark(bookId):
         #输出章节id和章节名
         print_chapterUid_and_title(bookId)
         #接受章节id并去除空符
-        chapterUid_str = input('输入章节ID：\n').replace(' ','')
+        chapterUid_str = input('输入章节ID,多个ID用英文逗号分隔：\n').replace(' ','')
         print('获取中...')
         #遍历所有章节id
         for chapterUid_s in chapterUid_str.split(','):
