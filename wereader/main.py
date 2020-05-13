@@ -72,6 +72,8 @@ def get_mark(bookId):
         for chapterUid_s in chapterUid_str.split(','):
             chapterUid = int(chapterUid_s)
             res += get_bookmarklist(bookId,is_all_chapter = 1,chapterUid=chapterUid)
+            print(chapterUid)
+        print('获取结束')
     else:
         print('其他指令，默认返回所有标注\n')
         res = get_bookmarklist(bookId)
