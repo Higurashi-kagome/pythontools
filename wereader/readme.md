@@ -105,11 +105,17 @@ hotmarks_number = {'pre': "`",   'suf': "`  "}#热门标注标注人数前后缀
 
 ## 补充
 
-项目托管于[GitHub](https://github.com/liuhao326/pythontools/tree/master/wereader)
+- 项目托管于[GitHub](https://github.com/liuhao326/pythontools/tree/master/wereader)
 
-如果gif动画没有播放，可以到[这里](https://www.cnblogs.com/Higurashi-kagome/p/12872060.html)查看。
+- 如果gif动画没有播放，可以到[这里](https://www.cnblogs.com/Higurashi-kagome/p/12872060.html)查看。
 
-欢迎PR和star，有什么问题也可以提 issue。
+- 计划改进的地方：
+
+1. 出错提示，运行状况反馈
+2. 特殊情况（参数出错、输入出错等）的处理
+3. 删除划线
+
+- 欢迎PR和star，有什么问题也可以提 issue。
 
 ## License
 
