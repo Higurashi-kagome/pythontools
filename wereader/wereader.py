@@ -31,6 +31,19 @@ hotmarks_number = {'pre': "`",   'suf': "`  "}#热门标注标注人数前后缀
 way_to_append = ''
 USERVID = 0
 
+headers_p = {
+    'Connection': 'keep-alive',
+    'Accept': 'application/json, text/plain, */*',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36',
+    'Content-Type': 'application/json;charset=UTF-8',
+    'Origin': 'https://weread.qq.com',
+    'Sec-Fetch-Site': 'same-origin',
+    'Sec-Fetch-Mode': 'cors',
+    'Sec-Fetch-Dest': 'empty',
+    'Accept-Encoding': 'gzip, deflate, br',
+    'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+}
+
 # 设置header
 headers = {
     'Host': 'i.weread.qq.com',
@@ -70,6 +83,7 @@ def set_hotmarks_number(number):
 
 """由url请求数据"""
 def request_data(url):
+    global headers
     r = requests.get(url,headers=headers,verify=False)
     if r.ok:
         data = r.json()
@@ -321,6 +335,31 @@ def get_bookshelf(userVid=USERVID,list_as_shelf = True):
             books[book['bookId']] = book['title']
         return books
 
+
+def remove_bookmark(bookmarkId):
+    global headers_p
+    url = 'https://weread.qq.com/web/book/removeBookmark'
+    d = {"bookmarkId":bookmarkId}
+    r = requests.post(url,data = json.dumps(d),headers=headers_p,verify=False)
+    if r.ok:
+        data = r.json()
+        if data['succ'] == 1:
+            print(bookmarkId + '：ok')
+        else:
+            print(bookmarkId + '：fail')
+    else:
+        raise Exception(r.text)
+
+def remove_all_bookmark(bookId):
+    #请求标注数据
+    url = "https://i.weread.qq.com/book/bookmarklist?bookId=" + str(bookId)
+    data = request_data(url)
+    #遍历bookmarkId删除标注
+    for item in data['updated']:
+        bookmarkId = item['bookmarkId']
+        remove_bookmark(bookmarkId)
+    
+
 """直接输出书架中的书：bookId bookName"""
 def print_books_directly(userVid=USERVID):
     books = get_bookshelf(USERVID,False)
@@ -479,7 +518,6 @@ def login_success(headers):
     """判断是否登录成功"""
     url = "https://i.weread.qq.com/user/notebooks"
     r = requests.get(url,headers=headers,verify=False)
-
     if r.ok:
         return True
     else:

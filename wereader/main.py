@@ -9,7 +9,7 @@
 
 from wereader import *
 from wereader import level1,level2,level3,style1,style2,style3
-from wereader import USERVID,headers,thought_style,way_to_append
+from wereader import USERVID,headers,thought_style,way_to_append,headers_p
 import sys
 import os
 import time
@@ -115,6 +115,7 @@ def print_guide():
     print('******setting******')
     for choice in setting_choice:
         print(choice)
+    print('删除所有标注：remove all')
     print('输入exit退出')
     y = input()
     return y
@@ -210,6 +211,8 @@ def main(bookId):
                     push_to_file(line_and_res[1])
                 else:
                     print('输入无效')
+        elif y == 'removeall':
+            remove_all_bookmark(bookId)
         elif y == 'exit':
             return 0
         elif y == 'changeid':
@@ -264,12 +267,14 @@ class MainWindow(QMainWindow):
 
         global USERVID
         global headers
+        global headers_p
 
         # 获取cookies
         cookies = ['{}={};'.format(key, value) for key,value in self.DomainCookies.items()]
         cookies = ' '.join(cookies)
         # 添加Cookie到header
         headers.update(Cookie=cookies)
+        headers_p.update(Cookie=cookies)
         # 判断是否成功登录微信读书
         if login_success(headers):
             #判断temp文件夹是否存在，不存在则创建
@@ -319,12 +324,17 @@ class MainWindow(QMainWindow):
 if __name__=='__main__':
     #cookie文件存在时尝试从文件中读取cookie登录
     if os.path.exists(cookie_file) and os.path.isfile(cookie_file):
+        #读取
         with open(cookie_file,'r',encoding='utf-8') as f:
             cookie_in_file = f.readlines()
-        headers_frome_file = headers
-        headers_frome_file.update(Cookie=cookie_in_file[0])
-        if login_success(headers_frome_file):
+        #尝试登陆
+        headers_from_file = headers
+        headers_from_file.update(Cookie=cookie_in_file[0])
+        if login_success(headers_from_file):
             print('登录微信读书成功!')
+            #登录成后更新headers
+            headers = headers_from_file
+            headers_p.update(Cookie=cookie_in_file[0])
             #获取用户user_vid
             for item in cookie_in_file[0].split(';'):
                 if item.strip()[:6] == 'wr_vid':
