@@ -238,12 +238,14 @@ def get_mythought(bookId):
             d_sorted_chapters.append(chapter)
     
     """生成想法"""
-    res = '\n'
+    res = ''
     for i in range(len(sorted_thoughts)):
         res += set_chapter_level(d_sorted_chapters[i][1]) + d_sorted_chapters[i][2] + '\n\n'
         for thought in sorted_thoughts[i][1]:
             text_and_abstract = thought[1].split('分开想法和原文内容')
             res += text_and_abstract[1] + '\n\n' + set_thought_style(text_and_abstract[0]) + '\n\n'
+    if res.strip() == '':
+        print('无想法')
     return res
 
 """
@@ -286,6 +288,8 @@ def get_bestbookmarks(bookId):
         res += set_chapter_level(chapter[1]) + title +'\n\n'
         for text in sorted_contents[chapter[0]]:
             res += text[1].strip() + '\n\n'
+    if res.strip() == '':
+        print('无热门标注')
     return res
 
 """

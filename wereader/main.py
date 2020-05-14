@@ -77,9 +77,10 @@ def get_mark(bookId):
     else:
         print('其他指令，默认返回所有标注\n')
         res = get_bookmarklist(bookId)
+    #没有标注时给出提示
     if res.strip() == '':
         print('无标注')
-    return res.strip()
+    return res
 
 """打印提示、返回输入"""
 def print_guide():
@@ -107,7 +108,7 @@ def print_guide():
         '设置新标注追加模式：append mode'
             ]
     #开始打印
-    print('书名：' + bookId_dict[bookId])
+    print('《' + bookId_dict[bookId] + '》')
     print('输入命令调用函数：')
     print('*******print*******')
     for choice in print_choice:
