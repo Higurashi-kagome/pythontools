@@ -2,24 +2,9 @@ import json
 import os
 import sys
 import requests
-from collections import namedtuple,defaultdict
-"""在使用元组的时候，你不得不用下角标来访问它的元素，这样对于代码的可读性来说是一种折损。
-namedtuple弥补了tuple的这一缺陷，使得你可以像使用对象属性那样去访问数据"""
-"""这里的defaultdict(function_factory)构建的是一个类似dictionary的对象，其中keys的值，自行确定赋值，但是values的类型，是function_factory的类实例，而且具有默认值。比如defaultdict(int)则创建一个类似dictionary对象，里面任何的values都是int的实例，而且就算是一个不存在的key, d[key] 也有一个默认值，这个默认值是int()的默认值0."""
-from operator import itemgetter
-"""itemgetter 用于获取对象的哪些位置的数据，参数即为代表位置的序号值"""
-from itertools import chain
-"""
-使用 chain() 的一个常见场景是当你想对不同的集合中所有元素执行某些操作的时候。它接受一个可迭代对象列表作为输入，
-并返回一个迭代器，有效的屏蔽掉在多个容器中迭代细节。
->>> a = [1, 2, 3, 4]
->>> b = ['x', 'y', 'z']
->>> for x in chain(a, b):
-"""
+from collections import defaultdict
 
 requests.packages.urllib3.disable_warnings()
-Book = namedtuple('Book',['bookId','title','author','cover','category'])
-
 level1 = '## ◆ '#(微信读书)一级标题
 level2 = '### ◆ '#二级标题
 level3 = '#### '#三级标题
@@ -196,7 +181,6 @@ def get_mythought(bookId):
     """获取数据"""
     url = "https://i.weread.qq.com/review/list?bookId=" + str(bookId) + "&listType=11&mine=1&synckey=0&listMode=0"
     data = request_data(url)
-    
     """遍历所有想法并添加到字典储存起来
     thoughts = {30: {7694: '...',122:'...'}, 16: {422: '...',}, 12: {788: '...',}}
     """
@@ -306,7 +290,49 @@ def get_bookinfo(bookId):
     return res
 
 """
-获取书架中的书：
+(排序)获取书架中的书:
+直接列出——[(readUpdateTime,[bookId,"bookName"]),...]
+按分类列出——{'计算机':[[readUpdatetime,bookId,'title'],...]}
+"""
+def get_sorted_bookshelf(userVid=USERVID,list_as_shelf = True):
+    url = "https://i.weread.qq.com/shelf/sync?userVid=" + str(userVid) + "&synckey=0&lectureSynckey=0" 
+    data = request_data(url)
+    
+    """获取书架上的所有书"""
+    if list_as_shelf == True:   #分类列出
+        #{bookId:[readUpdatetime,bookId,title]}
+        books = {}
+        for book in data['books']:
+            bookId = int(book['bookId'])
+            books[bookId] = [book['readUpdateTime'],bookId,book['title']]
+        #遍历书本分类：{'计算机':[[readUpdatetime,bookId,title],...]}
+        shelf = defaultdict(list)
+        for archive in data['archive']:
+            #遍历某类别内的书本id并追加[readUpdatetime,bookId,title]
+            for bookId in archive['bookIds']:
+                shelf[archive['name']].append(books[int(bookId)])
+                del books[int(bookId)]
+        #附加未分类书本
+        if books:
+            for bookId in books.keys():
+                shelf['未分类书本'].append(books[bookId])
+        #排序
+        for category in shelf.keys():
+            shelf[category] = sorted(shelf[category],key=lambda x: x[0])
+            shelf[category].reverse()
+        return shelf
+    else:   #直接列出
+        #遍历所有书并储存到字典,得到{{readUpdateTime:[bookId,"bookName"]}}
+        books = {}
+        for book in data['books']:
+            books[book['readUpdateTime']] = [int(book['bookId']),book['title']]
+        #排序得到[(readUpdateTime,[bookId,"bookName"])]
+        sorted_books = sorted(books.items())
+        sorted_books.reverse()
+        return sorted_books
+
+"""
+(不排序)获取书架中的书：
 直接列出——{bookId1:"title1"...}
 按分类列出——{"计算机":{bookId1:"bookName"...}...}
 """
@@ -320,11 +346,11 @@ def get_bookshelf(userVid=USERVID,list_as_shelf = True):
         for book in data['books']:
             books[book['bookId']] = book['title']
         
-        #遍历书架格创建整个书架
+        #遍历书架分类创建整个书架
         shelf = defaultdict(dict)
-        #遍历书架格
+        #遍历书架分类
         for archive in data['archive']:
-            #遍历书架格内的书本id
+            #遍历书架分类内的书本id并赋值
             for bookId in archive['bookIds']:
                 shelf[archive['name']][bookId] = books[bookId]
                 del books[bookId]
@@ -366,20 +392,32 @@ def remove_all_bookmark(bookId):
 
 """直接输出书架中的书：bookId bookName"""
 def print_books_directly(userVid=USERVID):
-    books = get_bookshelf(USERVID,False)
-    for book_id,book_name in books.items():
+    books = get_sorted_bookshelf(userVid,False)
+    for book in books:
+        book_id = str(book[1][0])
+        book_name = book[1][1]
         print(book_id + ' '*(9 - len(book_id)) + book_name)
     return ''
 
 """按分类输出，文档树样式"""
 def print_books_as_tree(userVid=USERVID):
-    shelf = get_bookshelf(USERVID)
+    shelf = get_sorted_bookshelf(userVid)
+    #获得{readUpdatetime1:'计算机',...}
+    sorted_group = {}
+    for group_name in shelf.keys():
+        sorted_group[shelf[group_name][0][0]] = group_name
+    #排序,得到[(readUpdatetime1,'计算机'),...]
+    sorted_group = sorted(sorted_group.items())
+    sorted_group.reverse()
     print('\n你的书架')
     #遍历分类
-    for group_name,books in shelf.items():
+    for group in sorted_group:
+        group_name = group[1]
         print('    ┣━━ ' + group_name)
         #遍历分类下的书
-        for book_id,book_name in books.items():
+        for book in shelf[group_name]:
+            book_id = str(book[1])
+            book_name = book[2]
             print('    ┃    ┣━━  ' + book_id + ' '*(9 - len(book_id)) + book_name)
         print('    ┃          ')
         print('    ┃          ')

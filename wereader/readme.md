@@ -1,6 +1,6 @@
 # 微信读书助手(爬虫) wereader
 
-> 本项目基于[@arry-lee](https://github.com/arry-lee)的项目[wereader](https://github.com/arry-lee/wereader/issues/20)修改而来，并借鉴了[@shengqiangzhang](https://github.com/shengqiangzhang)的[一键导出微信读书的书籍和笔记]([https://github.com/shengqiangzhang/examples-of-web-crawlers/tree/master/12.%E4%B8%80%E9%94%AE%E5%AF%BC%E5%87%BA%E5%BE%AE%E4%BF%A1%E8%AF%BB%E4%B9%A6%E7%9A%84%E4%B9%A6%E7%B1%8D%E5%92%8C%E7%AC%94%E8%AE%B0](https://github.com/shengqiangzhang/examples-of-web-crawlers/tree/master/12.一键导出微信读书的书籍和笔记))中的GUI登录方法，感谢原作者、感谢开源。
+> 本项目基于[@arry-lee](https://github.com/arry-lee)的项目[wereader](https://github.com/arry-lee/wereader/issues/20)修改而来，并借鉴了[@shengqiangzhang](https://github.com/shengqiangzhang)的[一键导出微信读书的书籍和笔记](https://github.com/shengqiangzhang/examples-of-web-crawlers/tree/master/12.一键导出微信读书的书籍和笔记)中的GUI登录方法，感谢原作者、感谢开源。
 
 ## 主要功能
 
