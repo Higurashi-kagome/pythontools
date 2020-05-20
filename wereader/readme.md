@@ -120,7 +120,7 @@ hotmarks_number = {'pre': "`",   'suf': "`  "}#热门标注标注人数前后缀
 4. 删除某标题下的标注
 5. remove的问题
 
-- 欢迎PR和star，有什么问题也可以提 issue。
+- 欢迎PR或star，有什么问题也可以提 issue。
 
 ## License
 
