@@ -7,6 +7,18 @@
 @time: 2020/5/11 21:14
 """
 
+"""
+获取：
+1. 标注（按顺序）
+2. 想法（按顺序）
+3. 热门标注（按顺序）
+4. 目录（按顺序）
+5. 书本信息
+6. 个人最新标注
+7. 按文档树输出书架中的书√
+8. 直接输出书架中的书√
+"""
+
 from wereader import *
 from wereader import level1,level2,level3,style1,style2,style3
 from wereader import USERVID,headers,thought_style,way_to_append,headers_p
@@ -46,8 +58,9 @@ def push_to_file(res):
 
 """输出内容并复制到剪切板"""
 def print_and_copy(res):
-    print(res)
-    pyperclip.copy(res)
+    if res != None:
+        print(res)
+        pyperclip.copy(res)
 
 """获取标注(md)"""
 def get_mark(bookId):
@@ -128,7 +141,6 @@ def print_guide():
 def main(bookId):
     global file
     global way_to_append
-    bookId = bookId
     while True:
         y = print_guide().replace(' ','').lower()
         if y[:5] == 'print':
@@ -158,10 +170,16 @@ def main(bookId):
             elif y == 'print6':
                 if way_to_append == '':
                     way_to_append = input('选择追加模式：按时间/按位置(1/2)?').replace(' ','')
-                elif way_to_append.strip() == '1':
+                    if way_to_append == '1':
+                        line_and_res = get_new_content_bytime(bookId)
+                        print_and_copy(line_and_res[1])
+                    elif way_to_append == '2':
+                        line_and_res = get_new_content_byrange(bookId)
+                        print_and_copy(line_and_res[1])
+                elif way_to_append == '1':
                     line_and_res = get_new_content_bytime(bookId)
                     print_and_copy(line_and_res[1])
-                elif way_to_append.strip() == '2':
+                elif way_to_append == '2':
                     line_and_res = get_new_content_byrange(bookId)
                     print_and_copy(line_and_res[1])
                 else:
@@ -356,7 +374,7 @@ if __name__=='__main__':
         app.exec_() # 运行应用，并监听事件
     
     
-    #将书架按{bookId1:"title1"...}的形式储存在字典中
+    #将书架按{'bookId1':"title1"...}的形式储存在字典中
     bookId_dict = get_bookshelf(userVid=USERVID,list_as_shelf = False)
     print('**********************************************************')
     while True:

@@ -81,7 +81,10 @@ def request_data(url):
 [(1, 1, '封面'), (2, 1, '版权信息'), (3, 1, '数字版权声明'), (4, 1, '版权声明'), (5, 1, '献给'), (6, 1, '前言'), (7, 1, '致谢')]
 """
 def get_sorted_chapters(bookId):
-    url = "https://i.weread.qq.com/book/chapterInfos?" + "bookIds=" + str(bookId) + "&synckeys=0"
+    if '_' in bookId:
+        print('公众号不支持输出目录')
+        return ''
+    url = "https://i.weread.qq.com/book/chapterInfos?" + "bookIds=" + bookId + "&synckeys=0"
     data = request_data(url)
     chapters = []
     #遍历章节,章节在数据中是按顺序排列的，所以不需要另外排列
@@ -99,6 +102,30 @@ def get_sorted_chapters(bookId):
 {"chapterUid":[[text_positon1,style1,"text1"],[text_positon2,style2,"text2"]...]}
 """
 def get_sorted_contents_from_data(data):
+    bookId = data['book']['bookId']
+    #书本为公众号的情况{createTime:[[text_position1,'text1'],...]}
+    if '_' in bookId:
+        sorted_content = []  #
+        marks = defaultdict(list)   #{'refMpReviewId':[[position,'text'],...],...}
+        chapters = defaultdict(list) #{createTime:['reviewId','title'],...}
+        i = 0
+        for refMpInfos in data['refMpInfos']:
+            chapters[i] = [refMpInfos['reviewId'],refMpInfos['title']]
+            i = i + 1
+        #排序得到[(createTime1,['revieId1','title1']),...]
+        sorted_chapters = sorted(chapters.items())
+        #获得{createTime1:[[text_position1,'text1'],...],...}
+        for item in data['updated']:
+            marks[item['refMpReviewId']].append([int(item['range'].split('-')[0]),item['markText']])
+        #排序得到{'refMpReviewId':[[position1,'title1'],...]...}
+        sorted_marks = {}
+        for key in marks.keys():
+            sorted_marks[key] =  sorted(marks[key],key=lambda x: x[0])
+        #遍历章节
+        for chapter in sorted_chapters:
+            sorted_content.append({chapter[1][1]:sorted_marks[chapter[1][0]]})
+        return sorted_content
+        
     contents = defaultdict(list)
     """遍历所有标注并添加到字典储存起来"""
     for item in data['updated']:#遍历标注
@@ -123,11 +150,23 @@ def get_sorted_contents_from_data(data):
 (按顺序)返回data数据中的标注(Markdown格式)，标注标题按级别设置，标注内容设置前后缀
 """
 def get_md_str_from_data(data,is_all_chapter=1):
-    bookId = int(data['book']['bookId'])
+    res = '\n'
+    bookId = data['book']['bookId']
+    #书本为公众号的情况
+    if '_' in bookId:
+        sorted_contents = get_sorted_contents_from_data(data)
+        #遍历章节
+        for chapter in sorted_contents:
+            #获得章节标题和标注
+            for title,marks in chapter.items():
+                res += '### ' + title + '\n\n'
+                #遍历标注
+                for mark in marks:
+                    res += mark[1] + '\n\n'
+        return res
     #获取章节和标注
     sorted_chapters = get_sorted_chapters(bookId)
     sorted_contents = get_sorted_contents_from_data(data)
-    res = '\n'
     #遍历章节
     for chapter in sorted_chapters:#chapter = (chapterUid,position,title)
         #如果指明不输出所有标题
@@ -147,8 +186,14 @@ def get_md_str_from_data(data,is_all_chapter=1):
 def get_bookmarklist(bookId,is_all_chapter=1,chapterUid=-5):
     """获取笔记返回md文本"""
     #请求数据
-    url = "https://i.weread.qq.com/book/bookmarklist?bookId=" + str(bookId)
+    url = "https://i.weread.qq.com/book/bookmarklist?bookId=" + bookId
     data = request_data(url)
+    if '_' in bookId:
+        res = get_md_str_from_data(data)
+        if res == '':#如果在书本中未找到标注
+            print('书中无标注/获取出错')
+            return ''
+        return res
     """处理数据，生成笔记"""
     res = ''
     if chapterUid < 0:#生成全部标注
@@ -178,9 +223,16 @@ def get_bookmarklist(bookId,is_all_chapter=1,chapterUid=-5):
 (按顺序)获取书中的所有个人想法(Markdown格式,含原文,标题分级,想法前后缀)
 """
 def get_mythought(bookId):
+    res = ''
     """获取数据"""
-    url = "https://i.weread.qq.com/review/list?bookId=" + str(bookId) + "&listType=11&mine=1&synckey=0&listMode=0"
-    data = request_data(url)
+    if '_' in bookId:
+        url = 'https://i.weread.qq.com/review/list?listtype=6&mine=1&bookId=' + bookId + '&synckey=0&listmode=0'
+        data = request_data(url)
+        print('公众号暂时不支持获取想法')
+        return ''
+    else:
+        url = "https://i.weread.qq.com/review/list?bookId=" + bookId + "&listType=11&mine=1&synckey=0&listMode=0"
+        data = request_data(url)
     """遍历所有想法并添加到字典储存起来
     thoughts = {30: {7694: '...',122:'...'}, 16: {422: '...',}, 12: {788: '...',}}
     """
@@ -222,7 +274,6 @@ def get_mythought(bookId):
             d_sorted_chapters.append(chapter)
     
     """生成想法"""
-    res = ''
     for i in range(len(sorted_thoughts)):
         res += set_chapter_level(d_sorted_chapters[i][1]) + d_sorted_chapters[i][2] + '\n\n'
         for thought in sorted_thoughts[i][1]:
@@ -236,6 +287,9 @@ def get_mythought(bookId):
 (按顺序)获取书中的所有热门标注(Markdown格式)
 """
 def get_bestbookmarks(bookId):
+    if '_' in bookId:
+        print('公众号不支持热门标注')
+        return ''
     """获取书籍的热门划线,返回文本"""
     url = "https://i.weread.qq.com/book/bestbookmarks?bookId=" + str(bookId)
     data = request_data(url)
@@ -280,6 +334,9 @@ def get_bestbookmarks(bookId):
 获取书本信息(Markdown格式)
 """
 def get_bookinfo(bookId):
+    if '_' in bookId:
+        print('公众号不支持书本信息')
+        return ''
     """获取书的详情"""
     url = "https://i.weread.qq.com/book/info?bookId=" + str(bookId)
     data = request_data(url)
@@ -291,27 +348,26 @@ def get_bookinfo(bookId):
 
 """
 (排序)获取书架中的书:
-直接列出——[(readUpdateTime,[bookId,"bookName"]),...]
-按分类列出——{'计算机':[[readUpdatetime,bookId,'title'],...]}
+直接列出——[(readUpdateTime,['bookId',"bookName"]),...]
+按分类列出——{'计算机':[[readUpdatetime,'bookId','title'],...]}
 """
 def get_sorted_bookshelf(userVid=USERVID,list_as_shelf = True):
     url = "https://i.weread.qq.com/shelf/sync?userVid=" + str(userVid) + "&synckey=0&lectureSynckey=0" 
     data = request_data(url)
-    
     """获取书架上的所有书"""
     if list_as_shelf == True:   #分类列出
-        #{bookId:[readUpdatetime,bookId,title]}
+        #{'bookId':[readUpdatetime,'bookId',title]}
         books = {}
         for book in data['books']:
-            bookId = int(book['bookId'])
+            bookId = book['bookId']
             books[bookId] = [book['readUpdateTime'],bookId,book['title']]
-        #遍历书本分类：{'计算机':[[readUpdatetime,bookId,title],...]}
+        #遍历书本分类：{'计算机':[[readUpdatetime,'bookId',title],...]}
         shelf = defaultdict(list)
         for archive in data['archive']:
-            #遍历某类别内的书本id并追加[readUpdatetime,bookId,title]
+            #遍历某类别内的书本id并追加[readUpdatetime,'bookId',title]
             for bookId in archive['bookIds']:
-                shelf[archive['name']].append(books[int(bookId)])
-                del books[int(bookId)]
+                shelf[archive['name']].append(books[bookId])
+                del books[bookId]
         #附加未分类书本
         if books:
             for bookId in books.keys():
@@ -322,19 +378,19 @@ def get_sorted_bookshelf(userVid=USERVID,list_as_shelf = True):
             shelf[category].reverse()
         return shelf
     else:   #直接列出
-        #遍历所有书并储存到字典,得到{{readUpdateTime:[bookId,"bookName"]}}
+        #遍历所有书并储存到字典,得到{{readUpdateTime:['bookId',"bookName"]}}
         books = {}
         for book in data['books']:
-            books[book['readUpdateTime']] = [int(book['bookId']),book['title']]
-        #排序得到[(readUpdateTime,[bookId,"bookName"])]
+            books[book['readUpdateTime']] = [book['bookId'],book['title']]
+        #排序得到[(readUpdateTime,['bookId',"bookName"])]
         sorted_books = sorted(books.items())
         sorted_books.reverse()
         return sorted_books
 
 """
 (不排序)获取书架中的书：
-直接列出——{bookId1:"title1"...}
-按分类列出——{"计算机":{bookId1:"bookName"...}...}
+直接列出——{'bookId1':"title1"...}
+按分类列出——{"计算机":{'bookId1':"bookName"...}...}
 """
 def get_bookshelf(userVid=USERVID,list_as_shelf = True):
     url = "https://i.weread.qq.com/shelf/sync?userVid=" + str(userVid) + "&synckey=0&lectureSynckey=0" 
@@ -381,6 +437,9 @@ def remove_bookmark(bookmarkId):
         raise Exception(r.text)
 
 def remove_all_bookmark(bookId):
+    if '_' in bookId:
+        print('公众号暂不支持删除标注')
+        return
     #请求标注数据
     url = "https://i.weread.qq.com/book/bookmarklist?bookId=" + str(bookId)
     data = request_data(url)
@@ -394,9 +453,9 @@ def remove_all_bookmark(bookId):
 def print_books_directly(userVid=USERVID):
     books = get_sorted_bookshelf(userVid,False)
     for book in books:
-        book_id = str(book[1][0])
+        book_id = book[1][0]
         book_name = book[1][1]
-        print(book_id + ' '*(9 - len(book_id)) + book_name)
+        print(book_id + ' '*(10 - len(book_id)) + ' ' + book_name)
     return ''
 
 """按分类输出，文档树样式"""
@@ -416,20 +475,26 @@ def print_books_as_tree(userVid=USERVID):
         print('    ┣━━ ' + group_name)
         #遍历分类下的书
         for book in shelf[group_name]:
-            book_id = str(book[1])
+            book_id = book[1]
             book_name = book[2]
-            print('    ┃    ┣━━  ' + book_id + ' '*(9 - len(book_id)) + book_name)
+            print('    ┃    ┣━━  ' + book_id + ' '*(9 - len(book_id)) + ' ' + book_name)
         print('    ┃          ')
         print('    ┃          ')
     return ''
 
 def print_chapterUid_and_title(bookId):
+    if '_' in bookId:
+        print('公众号不支持此命令')
+        return ''
     sorted_chapters = get_sorted_chapters(bookId)
     for chapter in sorted_chapters:
-        print(str(chapter[0]) + ' '*(5 - len(str(chapter[0]))) + chapter[2])
+        print(str(chapter[0]) + ' '*(5 - len(str(chapter[0]))) + ' ' + chapter[2])
 
 """按时间返回新内容"""
 def get_new_content_bytime(bookId):
+    if '_' in bookId:
+        print('公众号不支持此命令')
+        return ('','')
     #判断temp文件夹是否存在，不存在则创建
     temp_dir = os.getcwd() + "\\temp"
     if not os.path.exists(temp_dir):
@@ -480,6 +545,9 @@ def get_new_content_bytime(bookId):
 
 """按位置返回新内容"""
 def get_new_content_byrange(bookId):
+    if '_' in bookId:
+        print('公众号不支持此命令')
+        return ('','')
     url = "https://i.weread.qq.com/book/bookmarklist?" + "bookId=" + str(bookId)
     #判断temp文件夹是否存在，不存在则创建
     temp_dir = os.getcwd() + "\\temp"
