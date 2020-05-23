@@ -291,7 +291,7 @@ def get_bestbookmarks(bookId):
         print('公众号不支持热门标注')
         return ''
     """获取书籍的热门划线,返回文本"""
-    url = "https://i.weread.qq.com/book/bestbookmarks?bookId=" + str(bookId)
+    url = "https://i.weread.qq.com/book/bestbookmarks?bookId=" + bookId
     data = request_data(url)
     
     """获取包含目录级别的目录数据"""
@@ -338,7 +338,7 @@ def get_bookinfo(bookId):
         print('公众号不支持书本信息')
         return ''
     """获取书的详情"""
-    url = "https://i.weread.qq.com/book/info?bookId=" + str(bookId)
+    url = "https://i.weread.qq.com/book/info?bookId=" + bookId
     data = request_data(url)
     bookinfo = [('title',data['title']),('author',data['author']),('category',data['category']),('introduction',data['intro']),('publisher',data['publisher'])]
     res = '\n'
@@ -352,7 +352,7 @@ def get_bookinfo(bookId):
 按分类列出——{'计算机':[[readUpdatetime,'bookId','title'],...]}
 """
 def get_sorted_bookshelf(userVid=USERVID,list_as_shelf = True):
-    url = "https://i.weread.qq.com/shelf/sync?userVid=" + str(userVid) + "&synckey=0&lectureSynckey=0" 
+    url = "https://i.weread.qq.com/shelf/sync?userVid=" + str(userVid) + "&synckey=0&lectureSynckey=0"
     data = request_data(url)
     """获取书架上的所有书"""
     if list_as_shelf == True:   #分类列出
@@ -441,7 +441,7 @@ def remove_all_bookmark(bookId):
         print('公众号暂不支持删除标注')
         return
     #请求标注数据
-    url = "https://i.weread.qq.com/book/bookmarklist?bookId=" + str(bookId)
+    url = "https://i.weread.qq.com/book/bookmarklist?bookId=" + bookId
     data = request_data(url)
     #遍历bookmarkId删除标注
     for item in data['updated']:
@@ -506,7 +506,7 @@ def get_new_content_bytime(bookId):
             line = f.readlines()[0]
             synckey = line.split(',')[0][1:]
         #按时间请求最新数据
-        url = "https://i.weread.qq.com/book/bookmarklist?" + "bookId=" + str(bookId) + "&synckey=" + synckey
+        url = "https://i.weread.qq.com/book/bookmarklist?" + "bookId=" + bookId + "&synckey=" + synckey
         data = request_data(url)
         if len(data['updated']) == 0:
             print('书中无新标注')
@@ -526,7 +526,7 @@ def get_new_content_bytime(bookId):
             return (line,res)
     elif not os.path.isfile(createTime_file):   #如果文件不存在
         #获取全部数据
-        url = "https://i.weread.qq.com/book/bookmarklist?" + "bookId=" + str(bookId) 
+        url = "https://i.weread.qq.com/book/bookmarklist?" + "bookId=" + bookId
         data = request_data(url)
         #生成{createTime:text}字典
         time_and_text = {}
@@ -548,7 +548,7 @@ def get_new_content_byrange(bookId):
     if '_' in bookId:
         print('公众号不支持此命令')
         return ('','')
-    url = "https://i.weread.qq.com/book/bookmarklist?" + "bookId=" + str(bookId)
+    url = "https://i.weread.qq.com/book/bookmarklist?" + "bookId=" + bookId
     #判断temp文件夹是否存在，不存在则创建
     temp_dir = os.getcwd() + "\\temp"
     if not os.path.exists(temp_dir):
