@@ -14,6 +14,7 @@ style3 = {'pre': "",   'suf': ""}#蓝色波浪线
 thought_style = {'pre': "```\n",   'suf': "\n```"}#想法前后缀
 hotmarks_number = {'pre': "`",   'suf': "`  "}#热门标注标注人数前后缀
 way_to_append = ''
+comment_mode = ''
 USERVID = 0
 
 headers_p = {
@@ -421,6 +422,34 @@ def get_bookshelf(userVid=USERVID,list_as_shelf = True):
             books[book['bookId']] = book['title']
         return books
 
+"""
+获取评价
+"""
+def get_comment(bookId,mode = '1'):
+    url = 'https://i.weread.qq.com/review/list?listType=6&synckey=0&userVid=' + str(USERVID) + '&rangeType=2&mine=1&listMode=1'
+    data = request_data(url)
+    #获取有评价的书籍列表并检查书本是否在其中
+    books_have_comment = []
+    for item in data['reviews']:
+        if item['review']['content'] != "":
+            book_id = item['review']['book']['bookId']
+            books_have_comment.append(book_id)
+    if bookId not in books_have_comment:
+        print('无评价')
+        return ''
+    #获取评价并返回
+    comment = ''
+    for item in data['reviews']:
+        book_id = item['review']['book']['bookId']
+        if book_id == bookId:
+            title = '### ' + item['review']['title']
+            htmlContent = item['review']['htmlContent']
+            content = item['review']['content']
+            if mode == '2':
+                comment = title + '\n\n' + htmlContent
+            else:
+                comment = title + '\n\n' + content
+            return comment
 
 def remove_bookmark(bookmarkId):
     global headers_p
@@ -447,7 +476,7 @@ def remove_all_bookmark(bookId):
     for item in data['updated']:
         bookmarkId = item['bookmarkId']
         remove_bookmark(bookmarkId)
-    
+
 
 """直接输出书架中的书：bookId bookName"""
 def print_books_directly(userVid=USERVID):

@@ -1,6 +1,12 @@
 import requests
 import json
 
+'''
+添加功能：
+1. wereader.py提供函数
+2. 修改main.py中的函数print_guide()：确保提示输出正确
+3. 修改main.py中的函数main(bookId)：确保用户输入后正确调用函数
+'''
 requests.packages.urllib3.disable_warnings()
 headers = {
     'Host': 'i.weread.qq.com',
@@ -26,12 +32,13 @@ def request_data(url):
     return data
 
 if __name__ == '__main__':
-    bookId = input('bookId：')
+    bookId = 'MP_WXS_3009174698'
     bookmarklist_url = "https://i.weread.qq.com/book/bookmarklist?bookId=" + bookId
     my_MPthought_url = 'https://i.weread.qq.com/review/list?listtype=6&mine=1&bookId=' + bookId + '&synckey=0&listmode=0'
     my_bookthought_url = "https://i.weread.qq.com/review/list?bookId=" + bookId + "&listType=11&mine=1&synckey=0&listMode=0"
     best_bookmark_url = "https://i.weread.qq.com/book/bestbookmarks?bookId=" + bookId
     bookInfo_url = "https://i.weread.qq.com/book/info?bookId=" + bookId
     book_shelf_url = "https://i.weread.qq.com/shelf/sync?userVid=" + str(USERVID) + "&synckey=0&lectureSynckey=0"
-    data = request_data(my_MPthought_url)
+    notes_url = 'https://i.weread.qq.com/review/list?listType=6&userVid=&rangeType=2'
+    data = request_data(notes_url)
     print(data)

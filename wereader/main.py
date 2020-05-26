@@ -21,7 +21,7 @@
 
 from wereader import *
 from wereader import level1,level2,level3,style1,style2,style3
-from wereader import USERVID,headers,thought_style,way_to_append,headers_p
+from wereader import USERVID,headers,headers_p,thought_style,way_to_append,comment_mode
 import sys
 import os
 import time
@@ -105,7 +105,8 @@ def print_guide():
         '输出书本信息：print 5',
         '输出个人最新标注：print 6',
         '按文档树输出书架中的书：print 7',
-        '直接输出书架中的书：print 8'
+        '直接输出书架中的书：print 8',
+        '输出评价：print 9'
             ]
     push_choice = [
         '推送标注：push 1',
@@ -113,12 +114,14 @@ def print_guide():
         '推送热门标注：push 3',
         '推送书本目录：push 4',
         '推送书本信息：push 5',
-        '推送个人最新标注：push 6'
+        '推送个人最新标注：push 6',
+        '推送评价：push 7'
             ]
     setting_choice = [
         '重新设置书本ID：change id',
         '设置文件路径：change file',
-        '设置新标注追加模式：append mode'
+        '设置新标注追加模式(按时间/按位置)：append mode',
+        '设置评论输出模式(纯文本/html)：comment mode'
             ]
     #开始打印
     print('《' + bookId_dict[bookId] + '》')
@@ -141,6 +144,7 @@ def print_guide():
 def main(bookId):
     global file
     global way_to_append
+    global comment_mode
     while True:
         y = print_guide().replace(' ','').lower()
         if y[:5] == 'print':
@@ -169,7 +173,13 @@ def main(bookId):
                 print('**********************************************************')
             elif y == 'print6':
                 if way_to_append == '':
-                    way_to_append = input('选择追加模式：按时间/按位置(1/2)?').replace(' ','')
+                    while True:
+                        mode = input('选择追加模式：按时间/按位置(1/2)?').replace(' ','')
+                        if mode in ['1','2']:
+                            way_to_append = mode
+                            break
+                        else:
+                            print('输入无效，重新输入')
                     if way_to_append == '1':
                         line_and_res = get_new_content_bytime(bookId)
                         print_and_copy(line_and_res[1])
@@ -189,6 +199,22 @@ def main(bookId):
                 print('**********************************************************')
             elif y == 'print8':
                 print_books_directly(userVid=USERVID)
+                print('**********************************************************')
+            elif y == 'print9':
+                comment = ''
+                if comment_mode == '':
+                    while True:
+                        mode = input('选择评论输出模式(纯文本/html)(1/2)?').replace(' ','')
+                        if mode in ['1','2']:
+                            comment_mode = mode
+                            break
+                        else:
+                            print('输入无效，重新输入')
+                if comment_mode == '1':
+                    comment = get_comment(bookId,mode = '1')
+                elif comment_mode == '2':
+                    comment = get_comment(bookId,mode = '2')
+                print_and_copy(comment)
                 print('**********************************************************')
         elif y[:4] == 'push':
             if y == 'push1':
@@ -233,6 +259,22 @@ def main(bookId):
                     push_to_file(line_and_res[1])
                 else:
                     print('输入无效')
+            elif y == 'push7':
+                comment = ''
+                if comment_mode == '':
+                    while True:
+                        mode = input('选择评论输出模式(纯文本/html)(1/2)?').replace(' ','')
+                        if mode in ['1','2']:
+                            comment_mode = mode
+                            break
+                        else:
+                            print('输入无效，重新输入')
+                if comment_mode == '1':
+                    comment = get_comment(bookId,mode = '1')
+                elif comment_mode == '2':
+                    comment = get_comment(bookId,mode = '2')
+                push_to_file(comment)
+                print('**********************************************************')
         elif y == 'removeall':
             remove_all_bookmark(bookId)
         elif y == 'exit':
@@ -247,9 +289,16 @@ def main(bookId):
             else:
                 print('无效路径')
         elif y == 'appendmode':
-            append_mode = input('选择追加模式：按时间/按位置(1/2)?').replace(' ','')
-            if append_mode in ['1','2']:
-                way_to_append = append_mode
+            mode = input('选择追加模式：按时间/按位置(1/2)?').replace(' ','')
+            if mode in ['1','2']:
+                way_to_append = mode
+                print('设置成功')
+            else:
+                print('输入无效')
+        elif y == 'commentmode':
+            mode = input('选择评论格式：纯文本/html(1/2)?').replace(' ','')
+            if mode in ['1','2']:
+                comment_mode = mode
                 print('设置成功')
             else:
                 print('输入无效')
