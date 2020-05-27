@@ -29,7 +29,7 @@ def add_number_for_line(line_which_is_title,title_sign):
                     return titles_added_number[-1]
                 elif len(title_sign) < len(sign):#如果line_which_is_title是一级标题（比发现的第一个一级标题级别更高）
                     if is_continue != 'y':
-                        print('Markdown文件中的：' + title.strip() + "\n似乎不规范\n建议将Markdown文件中的标题分级、规范地写好后再继续")
+                        print('Markdown文件中的：\n' + title.strip() + '或\n' + line_which_is_title + "\n不规范\n建议将Markdown文件中的标题分级、规范地写好后再继续")
                         is_continue = input('是否忽略此类警告并继续？（y/n）')
                     if is_continue.strip().lower() == 'y':
                         titles_added_number.append(line_which_is_title.replace(title_sign + ' ',title_sign + ' ' + str(int(number[:-1]) + 1) + '. '))
@@ -58,7 +58,7 @@ def add_number_for_line(line_which_is_title,title_sign):
                 sign = title.lstrip().split(' ')[0]
                 if number[-1] == '.':#如果先发现一级标题
                     if is_continue != 'y':
-                        print('Markdown文件中的：' + title.strip() + "\n似乎不规范\n建议将Markdown文件中的标题分级、规范地写好后再继续")
+                        print('Markdown文件中的：\n' + title.strip() + '或\n' + line_which_is_title + "\n不规范\n建议将Markdown文件中的标题分级、规范地写好后再继续")
                         is_continue = input('是否忽略此类警告并继续？（y/n）')
                     if is_continue.strip() == 'y':
                         titles_added_number.append(line_which_is_title.replace(title_sign + ' ',title_sign + ' ' + str(int(number[:-1]) + 1) + '. '))
