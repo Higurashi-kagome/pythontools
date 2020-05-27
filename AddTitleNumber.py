@@ -50,7 +50,12 @@ def add_number_for_line(line_which_is_title,title_sign):
             titles_added_number.append(line_which_is_title.replace(title_sign + ' ',title_sign + ' ' + number + '.1 '))
             return titles_added_number[-1]
         elif len(title_sign_list[-1]) == len(title_sign_list[-2]):#如果line_which_is_title与上一个标题等级别
-            titles_added_number.append(line_which_is_title.replace(title_sign + ' ',title_sign + ' ' + number[:-1] + str(int(number.split('.')[-1]) + 1) + ' '))
+            number_list = number.split('.')
+            number_suf = number_list.pop(-1)
+            number_pre = ''
+            for num in number_list:
+                number_pre += num + '.'
+            titles_added_number.append(line_which_is_title.replace(title_sign + ' ',title_sign + ' ' + number_pre + str(int(number_suf) + 1) + ' '))
             return titles_added_number[-1]
         elif len(title_sign_list[-1]) < len(title_sign_list[-2]):#如果line_which_is_title的上一个标题比它更低
             for title in titles_added_number[::-1]:
@@ -69,7 +74,12 @@ def add_number_for_line(line_which_is_title,title_sign):
                         print('接收到y/n以外的输入，默认退出')
                         os._exit(0)
                 if len(sign) == len(title_sign):#如果找到等级别标题
-                    titles_added_number.append(line_which_is_title.replace(title_sign + ' ',title_sign + ' ' + number[:-1] + str(int(number.split('.')[-1]) + 1) + ' '))
+                    number_list = number.split('.')
+                    number_suf = number_list.pop(-1)
+                    number_pre = ''
+                    for num in number_list:
+                        number_pre += num + '.'
+                    titles_added_number.append(line_which_is_title.replace(title_sign + ' ',title_sign + ' ' + number_pre + str(int(number_suf) + 1) + ' '))
                     return titles_added_number[-1]
 
 
@@ -102,9 +112,9 @@ if len(sys.argv) < 2:
     print('请传入文件名')
     os._exit(0)
 file_name = sys.argv[1]
-try:
+if os.path.exists(file_name):
     with open(file_name,'r',encoding='utf-8') as f:
         create_markdown_file_with_number(f)
-except:
+else:
     msg = "未找到文件"
     print(msg)
