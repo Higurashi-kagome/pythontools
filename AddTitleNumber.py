@@ -108,10 +108,17 @@ def create_markdown_file_with_number(f):
     else:
         print('文件名重复，请修改文件'+'markdown_file_with_number.md'+'的文件名后重试')
 
+file_name = ''
 if len(sys.argv) < 2:
-    print('请传入文件名')
-    os._exit(0)
-file_name = sys.argv[1]
+    path = os.getcwd()
+    file_and_dir = os.listdir(path)
+    print('当前目录下的Markdown文件：')
+    for item in file_and_dir:
+        if item.split('.')[-1] in ['md','Md','MD','Markdown','markdown'] and os.path.isfile(item):
+            print(item)
+    file_name = input('请输入文件名(含后缀)\n')
+else:
+    file_name = sys.argv[1]
 if os.path.exists(file_name):
     with open(file_name,'r',encoding='utf-8') as f:
         create_markdown_file_with_number(f)
