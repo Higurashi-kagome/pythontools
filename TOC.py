@@ -28,12 +28,18 @@ def creat_directory(f):
     for line in f:
         lines_in_file.append(line)
     f.close()
-    for j in range(len(lines_in_file)):
+    length = len(lines_in_file)
+    for j in range(length):
         splitedline = lines_in_file[j].lstrip().split(' ')
         if splitedline[0] in headline:
             directory.append(creat_directory_line(lines_in_file[j],splitedline[0],i))
-            lines_in_file[j] = lines_in_file[j].replace(splitedline[0] + ' ',splitedline[0] + ' ' + '<a name="' + str(i) + '">')[:-1] + '</a><a style="float:right;text-decoration:none;" href="#index">[Top]</a>' + "\n"
-            i = i + 1
+            #如果为最后一行且末尾无换行（防最后一个字被去除）
+            if j == length - 1 and lines_in_file[j][-1] != '\n':
+                lines_in_file[j] = lines_in_file[j].replace(splitedline[0] + ' ',splitedline[0] + ' ' + '<a name="' + str(i) + '">')[:] + '</a><a style="float:right;text-decoration:none;" href="#index">[Top]</a>' + "\n"
+                i = i + 1
+            else:
+                lines_in_file[j] = lines_in_file[j].replace(splitedline[0] + ' ',splitedline[0] + ' ' + '<a name="' + str(i) + '">')[:-1] + '</a><a style="float:right;text-decoration:none;" href="#index">[Top]</a>' + "\n"
+                i = i + 1
     return directory
 
 """以目录列表为参数生成添加目录的文件"""
@@ -51,6 +57,17 @@ def creat_file_with_toc(f):
         print('文件名重复，请修改文件'+'file_with_toc.md'+'的文件名后重试')
 
 if __name__=='__main__':
-    file_name = sys.argv[1]
+    file_name = ''
+    #如果未传入文件名
+    if len(sys.argv) < 2:
+        path = os.getcwd()
+        file_and_dir = os.listdir(path)
+        print('当前目录下的Markdown文件：')
+        for item in file_and_dir:
+            if item.split('.')[-1] in ['md','Md','MD','Markdown','markdown'] and os.path.isfile(item):
+                print(item)
+        file_name = input('请输入文件名(含后缀)\n')
+    else:
+        file_name = sys.argv[1]
     with open(file_name,'r',encoding='utf-8') as f:
         creat_file_with_toc(f)
