@@ -5,8 +5,8 @@ import requests
 from collections import defaultdict
 
 requests.packages.urllib3.disable_warnings()
-level1 = '## ◆ '#(微信读书)一级标题
-level2 = '### ◆ '#二级标题
+level1 = '## '#(微信读书)一级标题
+level2 = '### '#二级标题
 level3 = '#### '#三级标题
 style1 = {'pre': "",   'suf': ""}#(微信读书)红色下划线
 style2 = {'pre': "**",   'suf': "**"}#橙色背景色
