@@ -39,6 +39,6 @@ if __name__ == '__main__':
     best_bookmark_url = "https://i.weread.qq.com/book/bestbookmarks?bookId=" + bookId
     bookInfo_url = "https://i.weread.qq.com/book/info?bookId=" + bookId
     book_shelf_url = "https://i.weread.qq.com/shelf/sync?userVid=" + str(USERVID) + "&synckey=0&lectureSynckey=0"
-    notes_url = 'https://i.weread.qq.com/review/list?listType=6&userVid=&rangeType=2'
+    notes_url = 'https://i.weread.qq.com/review/list?listType=6&userVid=' + str(USERVID) + '&rangeType=2&mine=1&listMode=1'
     data = request_data(notes_url)
     print(data)
