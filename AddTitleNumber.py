@@ -114,7 +114,7 @@ if len(sys.argv) < 2:
     file_and_dir = os.listdir(path)
     print('当前目录下的Markdown文件：')
     for item in file_and_dir:
-        if item.split('.')[-1] in ['md','Md','MD','Markdown','markdown'] and os.path.isfile(item):
+        if item.split('.')[-1].lower() in ['md','mdown','markdown'] and os.path.isfile(item):
             print(item)
     file_name = input('请输入文件名(含后缀)\n')
 else:
