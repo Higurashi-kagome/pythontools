@@ -78,7 +78,7 @@ def get_mark(bookId):
     elif is_print_all.strip() == '2':#如果选择输出指定章节的标注
         #输出章节id和章节名
         print_chapterUid_and_title(bookId)
-        #接受章节id并去除空符
+        #接收章节id并去除空符
         chapterUid_str = input('输入章节ID,多个ID用英文逗号分隔：\n').replace(' ','')
         print('获取中...')
         #遍历所有章节id
@@ -146,6 +146,7 @@ def main(bookId):
     global way_to_append
     global comment_mode
     while True:
+        #调用print_guide()函数提示输入并将输入返回
         y = print_guide().replace(' ','').lower()
         if y[:5] == 'print':
             if y == 'print1':
@@ -160,8 +161,8 @@ def main(bookId):
                 res = get_bestbookmarks(bookId)
                 print_and_copy(res)
                 print('**********************************************************')
-            elif y == 'print4':
-                res = '\n'
+            elif y == 'print4':#输出目录
+                res = ''
                 sorted_chapters = get_sorted_chapters(bookId)
                 for chapter in sorted_chapters:
                     res += set_chapter_level(chapter[1]) + ' ' + chapter[2] + '\n\n'
@@ -429,9 +430,9 @@ if __name__=='__main__':
     while True:
         print_books_as_tree(userVid=USERVID)
         #提示输入书本id，正确输入后进入主函数
-        bookId = input('请输入书本ID：\n')
-        if bookId.strip() in bookId_dict.keys():
-            y = main(bookId.strip())
+        bookId = input('请输入书本ID：\n').strip()
+        if bookId in bookId_dict.keys():
+            y = main(bookId)
             if y == 0:
                 break
             elif y == 1:
