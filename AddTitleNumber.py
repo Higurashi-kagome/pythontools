@@ -1,5 +1,6 @@
 import sys
 import os
+import time
 
 headline = ['#','##','###','####','#####','######']
 title_sign_list = []
@@ -109,14 +110,23 @@ def create_markdown_file_with_number(f):
         print('文件名重复，请修改文件'+'markdown_file_with_number.md'+'的文件名后重试')
 
 file_name = ''
+#如果未传入文件
 if len(sys.argv) < 2:
-    path = os.getcwd()
-    file_and_dir = os.listdir(path)
-    print('当前目录下的Markdown文件：')
-    for item in file_and_dir:
-        if item.split('.')[-1].lower() in ['md','mdown','markdown'] and os.path.isfile(item):
-            print(item)
-    file_name = input('请输入文件名(含后缀)\n')
+        path = os.getcwd()
+        file_and_dir = os.listdir(path)
+        md_file = []
+        for item in file_and_dir:
+            if item.split('.')[-1].lower() in ['md','mdown','markdown'] and os.path.isfile(item):
+                md_file.append(item)
+        if len(md_file) != 0:
+            print('当前目录下的Markdown文件：')
+            for file in md_file:
+                print(file)
+            file_name = input('请输入文件名(含后缀)\n')
+        else:
+            print('该目录下无Markdown文件，即将退出...')
+            time.sleep(2)
+            os._exit(0)
 else:
     file_name = sys.argv[1]
 if os.path.exists(file_name):
