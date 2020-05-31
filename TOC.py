@@ -1,5 +1,6 @@
 import sys
 import os
+import time
 
 headline = ['#','##','###','####','#####','######']
 lines_in_file = []
@@ -32,12 +33,13 @@ def creat_directory(f):
     for j in range(length):
         splitedline = lines_in_file[j].lstrip().split(' ')
         if splitedline[0] in headline:
-            directory.append(creat_directory_line(lines_in_file[j],splitedline[0],i))
             #如果为最后一行且末尾无换行（防最后一个字被去除）
             if j == length - 1 and lines_in_file[j][-1] != '\n':
+                directory.append(creat_directory_line(lines_in_file[j] + '\n',splitedline[0],i) + '\n')
                 lines_in_file[j] = lines_in_file[j].replace(splitedline[0] + ' ',splitedline[0] + ' ' + '<a name="' + str(i) + '">')[:] + '</a><a style="float:right;text-decoration:none;" href="#index">[Top]</a>' + "\n"
                 i = i + 1
             else:
+                directory.append(creat_directory_line(lines_in_file[j],splitedline[0],i))
                 lines_in_file[j] = lines_in_file[j].replace(splitedline[0] + ' ',splitedline[0] + ' ' + '<a name="' + str(i) + '">')[:-1] + '</a><a style="float:right;text-decoration:none;" href="#index">[Top]</a>' + "\n"
                 i = i + 1
     return directory
@@ -62,12 +64,24 @@ if __name__=='__main__':
     if len(sys.argv) < 2:
         path = os.getcwd()
         file_and_dir = os.listdir(path)
-        print('当前目录下的Markdown文件：')
+        md_file = []
         for item in file_and_dir:
             if item.split('.')[-1].lower() in ['md','mdown','markdown'] and os.path.isfile(item):
-                print(item)
-        file_name = input('请输入文件名(含后缀)\n')
+                md_file.append(item)
+        if len(md_file) != 0:
+            print('当前目录下的Markdown文件：')
+            for file in md_file:
+                print(file)
+            file_name = input('请输入文件名(含后缀)\n')
+        else:
+            print('该目录下无Markdown文件，即将退出...')
+            time.sleep(2)
+            os._exit(0)
     else:
         file_name = sys.argv[1]
-    with open(file_name,'r',encoding='utf-8') as f:
-        creat_file_with_toc(f)
+    if os.path.exists(file_name) and os.path.isfile(file_name):
+        with open(file_name,'r',encoding='utf-8') as f:
+            creat_file_with_toc(f)
+    else:
+        msg = "未找到文件"
+        print(msg)
