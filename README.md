@@ -29,9 +29,3 @@
 
 使用：[示例](https://www.cnblogs.com/Higurashi-kagome/p/12497601.html#使用实例)
 
-------
-
-欢迎PR或star:star:， 有什么问题也可以提 issue。
-
-你的支持将使我更加专注于开源和完善代码:two_hearts:。
-
