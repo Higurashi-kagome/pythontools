@@ -64,7 +64,7 @@ def add_number_for_line(line_which_is_title,title_sign):
                 sign = title.lstrip().split(' ')[0]
                 if number[-1] == '.':#如果先发现一级标题
                     if is_continue != 'y':
-                        print('Markdown文件中的：\n' + title.strip() + '或\n' + line_which_is_title + "\n不规范\n建议将Markdown文件中的标题分级、规范地写好后再继续")
+                        print('Markdown文件中的：\n' + title.strip() + '\n或\n' + line_which_is_title + "\n不规范\n建议将Markdown文件中的标题分级、规范地写好后再继续")
                         is_continue = input('是否忽略此类警告并继续？（y/n）')
                     if is_continue.strip() == 'y':
                         titles_added_number.append(line_which_is_title.replace(title_sign + ' ',title_sign + ' ' + str(int(number[:-1]) + 1) + '. '))
@@ -94,20 +94,21 @@ def create_lines_with_number(lines_in_file):
 
 
 """生成添加了标题编号的文件"""
-def create_markdown_file_with_number(f):
+def create_markdown_file_with_number(f,file_name):
     lines_in_file = []
     lines_in_file_with_number = []
     lines_in_file = f.readlines()
     f.close()
     lines_in_file_with_number = create_lines_with_number(lines_in_file)
-    markdown_file_with_number = os.getcwd() + '\\markdown_file_with_number.md'
+    # 根据原文件名生成标题添加了序号的文件的文件名
+    markdown_file_with_number = os.getcwd() + '\\' + file_name[::-1].split('.',1)[1][::-1] + '_withNum.md'
     if not os.path.exists(markdown_file_with_number):
         with open(markdown_file_with_number, 'w+',encoding='utf-8') as f:
             for line in lines_in_file_with_number:
                 f.write(line)
             print('文件已生成')
     else:
-        print('文件名重复，请修改文件'+'markdown_file_with_number.md'+'的文件名后重试')
+        print('文件名重复，请修改文件'+ markdown_file_with_number +'的文件名后重试')
 
 file_name = ''
 #如果未传入文件
@@ -131,7 +132,7 @@ else:
     file_name = sys.argv[1]
 if os.path.exists(file_name):
     with open(file_name,'r',encoding='utf-8') as f:
-        create_markdown_file_with_number(f)
+        create_markdown_file_with_number(f,file_name)
 else:
     msg = "未找到文件"
     print(msg)
