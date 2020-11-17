@@ -360,14 +360,19 @@ def get_sorted_bookshelf(userVid=USERVID,list_as_shelf = True):
         #{'bookId':[readUpdatetime,'bookId',title]}
         books = {}
         for book in data['books']:
-            bookId = book['bookId']
-            books[bookId] = [book['readUpdateTime'],bookId,book['title']]
+            if 'bookId' in book:
+                bookId = book['bookId']
+            if 'title' in book:
+                books[bookId] = [book['readUpdateTime'],bookId,book['title']]
         #遍历书本分类：{'计算机':[[readUpdatetime,'bookId',title],...]}
         shelf = defaultdict(list)
         for archive in data['archive']:
+            if archive['name'] == '公众号':
+                continue
             #遍历某类别内的书本id并追加[readUpdatetime,'bookId',title]
             for bookId in archive['bookIds']:
-                shelf[archive['name']].append(books[bookId])
+                if 'bookId' in book:
+                    shelf[archive['name']].append(books[bookId])
                 del books[bookId]
         #附加未分类书本
         if books:
@@ -419,7 +424,8 @@ def get_bookshelf(userVid=USERVID,list_as_shelf = True):
         #遍历所有书并储存到字典
         books = {}
         for book in data['books']:
-            books[book['bookId']] = book['title']
+            if 'title' in book:
+                books[book['bookId']] = book['title']
         return books
 
 """
