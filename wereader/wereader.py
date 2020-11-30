@@ -234,10 +234,13 @@ def get_mythought(bookId):
     else:
         url = "https://i.weread.qq.com/review/list?bookId=" + bookId + "&listType=11&mine=1&synckey=0&listMode=0"
         data = request_data(url)
+        """ print(data)
+        return """
     """遍历所有想法并添加到字典储存起来
     thoughts = {30: {7694: '...',122:'...'}, 16: {422: '...',}, 12: {788: '...',}}
     """
     thoughts = defaultdict(dict)
+    MAX = 1000000000
     for item in data['reviews']:
         #获取想法所在章节id
         chapterUid = item['review']['chapterUid']
@@ -246,7 +249,11 @@ def get_mythought(bookId):
         #获取想法
         text = item['review']['content']
         #获取想法开始位置
-        text_positon = int(item['review']['range'].split('-')[0])
+        try:
+            text_positon = int(item['review']['range'].split('-')[0])
+        except:
+            #处理在章末添加想法的情况(将位置设置为一个很大的值)
+            text_positon = MAX + int(item['review']['createTime'])
         #以位置为键，以标注为值添加到字典中,获得{chapterUid:{text_positon:"text分开想法和原文内容abstract"}}
         thoughts[chapterUid][text_positon] = text + '分开想法和原文内容' + abstract
     
@@ -276,9 +283,14 @@ def get_mythought(bookId):
     
     """生成想法"""
     for i in range(len(sorted_thoughts)):
+        counter = 1
         res += set_chapter_level(d_sorted_chapters[i][1]) + d_sorted_chapters[i][2] + '\n\n'
         for thought in sorted_thoughts[i][1]:
             text_and_abstract = thought[1].split('分开想法和原文内容')
+            #如果为章末发布的标注（不包含 abstract 的标注）
+            if text_and_abstract[1] == '':
+                text_and_abstract[1] = "章末想法" + str(counter)
+                counter = counter + 1
             res += text_and_abstract[1] + '\n\n' + set_thought_style(text_and_abstract[0]) + '\n\n'
     if res.strip() == '':
         print('无想法')
