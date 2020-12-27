@@ -32,7 +32,8 @@ def request_data(url):
     return data
 
 if __name__ == '__main__':
-    bookId = 'MP_WXS_3009174698'
+    #MP_WXS_3009174698
+    bookId = '33381009'
     bookmarklist_url = "https://i.weread.qq.com/book/bookmarklist?bookId=" + bookId
     my_MPthought_url = 'https://i.weread.qq.com/review/list?listtype=6&mine=1&bookId=' + bookId + '&synckey=0&listmode=0'
     my_bookthought_url = "https://i.weread.qq.com/review/list?bookId=" + bookId + "&listType=11&mine=1&synckey=0&listMode=0"
@@ -40,5 +41,5 @@ if __name__ == '__main__':
     bookInfo_url = "https://i.weread.qq.com/book/info?bookId=" + bookId
     book_shelf_url = "https://i.weread.qq.com/shelf/sync?userVid=" + str(USERVID) + "&synckey=0&lectureSynckey=0"
     notes_url = 'https://i.weread.qq.com/review/list?listType=6&userVid=' + str(USERVID) + '&rangeType=2&mine=1&listMode=1'
-    data = request_data(notes_url)
+    data = request_data(my_bookthought_url)
     print(data)
