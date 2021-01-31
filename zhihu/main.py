@@ -1,6 +1,7 @@
 import zhihu_answer
 import login
 from config import config
+import word_analyze
 
 """ 
 在问题的回答数量较大时（比如 14941 个回答），通常可能遇到三类阻碍：
@@ -16,8 +17,11 @@ if __name__ == '__main__':
     question_id = input('请输入问题 id：').strip()
     answers = zhihu_answer.get_all_answers(question_id)
     if answers[0]:
-        zhihu_answer.write_to_files(answers, config)
-        print('完成')
+        file_path = zhihu_answer.write_to_files(answers, config)
+        if config['analyze']:
+            print('**********************************************************')
+            word_analyze.print_word_frequency(file_path)
     else:
         print('answers：{}'.format(answers))
     print('**********************************************************')
+    

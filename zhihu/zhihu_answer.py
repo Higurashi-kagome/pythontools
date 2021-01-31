@@ -13,6 +13,7 @@ def wait_response(url):
     sleep_lengh = 30
     response = None
     while True:
+        # todo：不显示为一行的问题
         wait_process_bar = tqdm(total=sleep_lengh, ncols=75)
         wait_process_bar.set_description('等待{}秒'.format(sleep_lengh))
         for i in range(sleep_lengh):
@@ -143,6 +144,8 @@ def write_to_files(answers, config={}):
     with open(file='.\\{}\\answers.json'.format(question_dir), mode='w', encoding='utf-8') as file:
         file.write(json.dumps(answers, ensure_ascii=False))
     print('路径：{}'.format(question_dir))
+    # 返回 answers.json 的路径，方便进行词频分析
+    return '.\\{}\\answers.json'.format(question_dir)
 
 
 if __name__ == '__main__':
