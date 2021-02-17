@@ -1,12 +1,12 @@
 """ 一个爬取图片的例子，用的是很基础的方法，下载速度不快，供学习 """
 
 import os
-import requests  # 先导入爬虫的库
+import requests
 from lxml import html
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36"
-}  # 设置头部信息,伪装浏览器
+}
 host = "https://bing.ioliu.cn"  # 爬取这个网站上的图片
 p = 1  # 记录当前页码
 

@@ -1,12 +1,15 @@
+from urllib.parse import unquote
+from tqdm import tqdm
 import requests
 import json
-from urllib.parse import unquote
 import time
+import sys
 import re
-import login
-from tqdm import tqdm
-import utils
+
 from config import config
+import login
+sys.path.append('..')
+from utils import net, fs
 requests.packages.urllib3.disable_warnings()
 
 def wait_response(url):
@@ -43,7 +46,7 @@ def wait_response(url):
 
 """ 分页面获取全部回答，返回一个包含所有分页的 List（每个分页包含若干回答） """
 def get_all_answers(question_id):
-    if not utils.is_connected():
+    if not net.is_connected():
         print('请求失败，请检查网络。')
         return
     answers = []
@@ -122,7 +125,7 @@ def write_to_files(answers, config={}):
             question_title=answers[0]['data'][0]['question']['title'], current_time=current_time)
     else:
         return
-    utils.create_dir(question_dir)
+    fs.create_dir(question_dir)
     page_count = 0
     # 创建 pages 文件
     print('创建 pages...')

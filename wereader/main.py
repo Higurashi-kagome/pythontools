@@ -2,12 +2,6 @@
 # -*- coding: UTF-8 -*-
 
 """
-@file: main.py
-@author: liuhao326
-@time: 2020/5/11 21:14
-"""
-
-"""
 获取：
 1. 标注（按顺序）
 2. 想法（按顺序）
@@ -24,13 +18,11 @@ from wereader import level1,level2,level3,style1,style2,style3
 from wereader import USERVID,headers,headers_p,thought_style,way_to_append,comment_mode
 import sys
 import os
-import time
 import pyperclip
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import QUrl
 from PyQt5.QtCore import Qt
-from PyQt5.QtCore import QCoreApplication
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEngineProfile
 
 # 微信读书用户id
