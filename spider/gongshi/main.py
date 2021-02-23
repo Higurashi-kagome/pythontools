@@ -1,9 +1,9 @@
+from selenium import webdriver
+from openpyxl import load_workbook
 import pandas
 import time
 import os
 import re
-from selenium import webdriver
-from openpyxl import load_workbook
 
 # 用于记录翻页（请求）次数
 counter = 0
