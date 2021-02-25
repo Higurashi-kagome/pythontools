@@ -1,4 +1,0 @@
-pyperclip
-requests
-PyQt5
-PyQtWebEngine
