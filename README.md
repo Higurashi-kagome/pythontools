@@ -1,5 +1,12 @@
 # pythontools
 
+使用之前在当前目录（pythontools）下执行以下命令安装依赖：
+
+<!-- 依赖文件更新命令（确保安装了 pipreqs）：pipreqs ./ --encoding=utf8 -->
+```
+pip install -r requirements.txt
+```
+
 [微信读书笔记工具：wereader](wereader)
 
 使用：[介绍](https://www.cnblogs.com/Higurashi-kagome/p/12872060.html)

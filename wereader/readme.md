@@ -18,43 +18,19 @@
 
 针对上面所获取的大多数内容，使用时有两方面的操作选择：一是输出到控制台并复制到剪切板；二是追加到指定文件。
 
-主要代码见 `wereader.py`
+主要代码见 `wereader.py`。
 
 ## 如何运行
 
-```
-# 跳转到当前目录
-cd 目录名
-# 安装依赖库
-pip install -r requirement.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
-# 开始运行
-python main.py
-```
-
-如果运行出错，尝试先卸载依赖库：
+首先确保已安装好依赖，然后在当前目录（wereader）执行以下命令：
 
 ```
-# 跳转到当前目录
-cd 目录名
-# 先卸载依赖库
-pip uninstall -y -r requirement.txt
-# 再重新安装依赖库
-pip install -r requirement.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
-# 开始运行
 python main.py
 ```
 
 ## 操作简介
 
-输入命令
-
-```
-python main.py
-```
-
-运行程序之后。
-
-程序会提示登录，登录成功后会输出书架并提示输入书本 id（书名前面的那一串数字）：
+输入以上命令运行程序之后。程序会提示登录，登录成功后会输出书架并提示输入书本 id（书名前面的那一串数字）：
 
 ![](https://img2020.cnblogs.com/blog/1934175/202005/1934175-20200511212839422-1766996009.gif)
 
@@ -112,4 +88,4 @@ hotmarks_number = {'pre': "`",   'suf': "`  "}#热门标注标注人数前后缀
 
 ## License
 
-[The MIT License (MIT)](http://opensource.org/licenses/MIT)
+MIT

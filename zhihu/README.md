@@ -1,15 +1,8 @@
-### 安装依赖
-
-```
-pip install -r requirements.txt
-```
-
 ### 使用
 
-运行命令：
+首先确保已安装好依赖，然后在当前目录（zhihu）下运行如下命令：
 
 ```
-cd zhihu
 python main.py
 ```
 
@@ -19,4 +12,4 @@ python main.py
 
 [-zhihu-crawl-](https://github.com/visionshao/-zhihu-crawl-)
 
-[偶尔有点小迷糊/30行Python代码得出《三体》中最多提到的人](https://www.bilibili.com/video/BV19b411j7E5)
+[偶尔有点小迷糊/30 行 Python 代码得出《三体》中最多提到的人](https://www.bilibili.com/video/BV19b411j7E5)
