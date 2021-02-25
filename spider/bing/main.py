@@ -1,4 +1,4 @@
-""" 一个爬取图片的例子 """
+""" 下载 https://bing.ioliu.cn 中的图片 """
 
 import os
 import requests
