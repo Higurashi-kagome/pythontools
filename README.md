@@ -1,8 +1,8 @@
 # pythontools
 
-使用之前在当前目录（pythontools）下执行以下命令安装依赖：
+使用之前请在当前目录（pythontools）下执行如下命令以安装依赖：
 
-<!-- 依赖文件更新命令（确保安装了 pipreqs）：pipreqs ./ --encoding=utf8 -->
+<!-- 依赖文件更新命令（确保安装了 pipreqs）：pipreqs ./ --encoding=utf8 --force -->
 ```
 pip install -r requirements.txt
 ```
