@@ -2,11 +2,11 @@
 
 from selenium import webdriver
 
-def weread(lianming=True, wuxian=True):
+def weread(vid, lianming=True, wuxian=True):
     driver = webdriver.Chrome()
     driver.get('https://weread.qnmlgb.tech/onestep')
     vid_input = driver.find_element_by_id('linkcode')
-    vid_input.send_keys()
+    vid_input.send_keys(vid)
     driver.find_element_by_xpath("//button[text()='查找']").click()
     if lianming:
         driver.find_element_by_xpath("//a[text()='点击参与周四联名卡']").click()
@@ -30,4 +30,4 @@ if __name__ == '__main__':
     lianming = input('参与联名卡（y/n）：') in accepts
     wuxian = input('参与无限卡（y/n）：') in accepts
     vid = input('输入 userVid：')
-    weread(lianming, wuxian)
+    weread(vid, lianming, wuxian)
