@@ -26,8 +26,7 @@ def weread(vid, lianming=True, wuxian=True):
     driver.quit()
 
 if __name__ == '__main__':
-    accepts = ['y', 'Y']
-    lianming = input('参与联名卡（y/n）：') in accepts
-    wuxian = input('参与无限卡（y/n）：') in accepts
     vid = input('输入 userVid：')
+    lianming = input('参与联名卡（y/n）：').lower() == 'y'
+    wuxian = input('参与无限卡（y/n）：').lower() == 'y'
     weread(vid, lianming, wuxian)
