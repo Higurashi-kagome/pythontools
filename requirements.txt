@@ -1,4 +1,4 @@
-lxml==4.6.2
+lxml==4.6.3
 tqdm==4.56.0
 pandas==1.2.2
 jieba==0.42.1
