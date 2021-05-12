@@ -1,6 +1,7 @@
 import sys
 import os
 import time
+import re
 
 headline = ['#','##','###','####','#####','######']
 title_sign_list = []
@@ -8,10 +9,11 @@ title_sign_list = []
 titles_added_number = []
 """保存嵌入了编号的标题，用于产生新编号"""
 is_continue = 'n'
-
+suf = '.'
 
 """给某一行添加编号"""
 def add_number_for_line(line_which_is_title,title_sign):
+    global suf
     global is_continue
     global title_sign_list
     global titles_added_number
@@ -24,9 +26,10 @@ def add_number_for_line(line_which_is_title,title_sign):
         for title in titles_added_number[::-1]:
             number = title.lstrip().split(' ')[1]
             sign = title.lstrip().split(' ')[0]
-            if number[-1] == '.':#如果发现一级标题(序号为1.,2.,3.,...)
+            if len(number) == 2 and number.count('.') == 1:#如果发现一级标题(序号为1.,2.,3.,...)
                 if len(title_sign) == len(sign):#如果line_which_is_title是一级标题（与发现的一级标题title级别相同）
-                    titles_added_number.append(line_which_is_title.replace(title_sign + ' ',title_sign + ' ' + str(int(number[:-1]) + 1) + '. '))
+                    titles_added_number.append(
+                        line_which_is_title.replace(title_sign + ' ',title_sign + ' ' + str(int(number[:-1]) + 1) + '. '))
                     return titles_added_number[-1]
                 elif len(title_sign) < len(sign):#如果line_which_is_title是一级标题（比发现的第一个一级标题级别更高）
                     if is_continue != 'y':
@@ -44,25 +47,29 @@ def add_number_for_line(line_which_is_title,title_sign):
                     break
         #当标题级别不是一级(序号不是1.,2.,3.,...)
         number = titles_added_number[-1].lstrip().split(' ')[1]
-        if number[-1] == '.':#如果line_which_is_title的上一级标题为一级标题(序号为1.,2.,3.,...)
-            titles_added_number.append(line_which_is_title.replace(title_sign + ' ',title_sign + ' ' + number + '1 '))
+        if len(number) == 2 and number.count('.') == 1:#如果line_which_is_title的上一级标题为一级标题(序号为1.,2.,3.,...)
+            titles_added_number.append(
+                line_which_is_title.replace(
+                    title_sign + ' ',title_sign + ' ' + number + '1' + suf + ' '))
             return titles_added_number[-1]
         elif len(title_sign_list[-1]) > len(title_sign_list[-2]):#如果line_which_is_title的上一个标题比它更高
-            titles_added_number.append(line_which_is_title.replace(title_sign + ' ',title_sign + ' ' + number + '.1 '))
+            number = re.search('(.*\.\d+)[^\d]?$', number).group(1)
+            titles_added_number.append(
+                line_which_is_title.replace(
+                    title_sign + ' ',title_sign + ' ' + number + '.1' + suf + ' '))
             return titles_added_number[-1]
         elif len(title_sign_list[-1]) == len(title_sign_list[-2]):#如果line_which_is_title与上一个标题等级别
-            number_list = number.split('.')
-            number_suf = number_list.pop(-1)
-            number_pre = ''
-            for num in number_list:
-                number_pre += num + '.'
-            titles_added_number.append(line_which_is_title.replace(title_sign + ' ',title_sign + ' ' + number_pre + str(int(number_suf) + 1) + ' '))
+            number_suf = re.search('(.*\.)(\d+)[^\d]?$', number).group(2)
+            number_pre = re.search('(.*\.)(\d+)[^\d]?$', number).group(1)
+            titles_added_number.append(
+                line_which_is_title.replace(
+                    title_sign + ' ',title_sign + ' ' + number_pre + str(int(number_suf) + 1) + suf + ' '))
             return titles_added_number[-1]
         elif len(title_sign_list[-1]) < len(title_sign_list[-2]):#如果line_which_is_title的上一个标题比它更低
             for title in titles_added_number[::-1]:
                 number = title.lstrip().split(' ')[1]
                 sign = title.lstrip().split(' ')[0]
-                if number[-1] == '.':#如果先发现一级标题
+                if len(number) == 2 and number.count('.') == 1:#如果先发现一级标题
                     if is_continue != 'y':
                         print('Markdown文件中的：\n' + title.strip() + '\n或\n' + line_which_is_title + "\n不规范\n建议将Markdown文件中的标题分级、规范地写好后再继续")
                         is_continue = input('是否忽略此类警告并继续？（y/n）')
@@ -75,12 +82,11 @@ def add_number_for_line(line_which_is_title,title_sign):
                         print('接收到y/n以外的输入，默认退出')
                         os._exit(0)
                 if len(sign) == len(title_sign):#如果找到等级别标题
-                    number_list = number.split('.')
-                    number_suf = number_list.pop(-1)
-                    number_pre = ''
-                    for num in number_list:
-                        number_pre += num + '.'
-                    titles_added_number.append(line_which_is_title.replace(title_sign + ' ',title_sign + ' ' + number_pre + str(int(number_suf) + 1) + ' '))
+                    number_suf = re.search('(.*\.)(\d+)[^\d]?$', number).group(2)
+                    number_pre = re.search('(.*\.)(\d+)[^\d]?$', number).group(1)
+                    titles_added_number.append(
+                        line_which_is_title.replace(
+                            title_sign + ' ',title_sign + ' ' + number_pre + str(int(number_suf) + 1) + suf + ' '))
                     return titles_added_number[-1]
 
 

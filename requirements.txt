@@ -7,3 +7,4 @@ pyperclip==1.8.1
 selenium==3.141.0
 requests==2.25.0
 PyQt5==5.15.3
+re
