@@ -11,7 +11,7 @@ import re
 counter = 0
 
 def get_dirver():
-    driver = webdriver.Chrome() #把 Chromedriver 放到 python 安装路径里了，所以不用指定路径
+    driver = webdriver.Chrome(executable_path=r'../../utils/chromedriver.exe')
     driver.get('http://xt.hnnjgzbt.com/pub/gongshi')
     """ 点击表单，请求数据 """
     driver.find_element_by_id('areaName').click()

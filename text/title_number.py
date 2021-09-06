@@ -114,7 +114,13 @@ def create_markdown_file_with_number(f,file_name):
                 f.write(line)
             print('文件已生成')
     else:
-        print('文件名重复，请修改文件'+ markdown_file_with_number +'的文件名后重试')
+        if input('文件名重复，是否覆盖 ' + markdown_file_with_number + ' (y/n)').lower() == 'y':
+            with open(markdown_file_with_number, 'w+',encoding='utf-8') as f:
+                for line in lines_in_file_with_number:
+                    f.write(line)
+                print('文件已生成')
+        else:
+            print('程序退出')
 
 file_name = ''
 #如果未传入文件
@@ -129,7 +135,9 @@ if len(sys.argv) < 2:
             print('当前目录下的Markdown文件：')
             for file in md_file:
                 print(file)
-            file_name = input('请输入文件名(含后缀)\n')
+            file_name = input('请输入文件名(含后缀)或回车选择第一个文件\n')
+            if not file_name:
+                file_name = md_file[0]
         else:
             print('该目录下无Markdown文件，即将退出...')
             time.sleep(2)

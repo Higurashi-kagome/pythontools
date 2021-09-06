@@ -29,3 +29,8 @@
 - Contribution 说明
 
 - Keep 运行数据导出
+- wereader 删除指定章节的标注
+- 删除 wereader 按时间进行标注排序的函数
+- Vim 命令模糊搜索
+- changelog 维护
+- 快速入门教程（基于《python 编程从入门到实践》）

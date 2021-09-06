@@ -7,6 +7,8 @@
 pip install -r requirements.txt
 ```
 
+另：运行使用了 selenium 的脚本前需确保 [chromedriver.exe](utils/chromedriver.exe) 和 [geckodriver.exe](utils/geckodriver.exe) 与浏览器版本相匹配。
+
 [微信读书笔记工具：wereader](wereader)
 
 使用：[介绍](https://www.cnblogs.com/Higurashi-kagome/p/12872060.html)
@@ -26,3 +28,7 @@ pip install -r requirements.txt
 [使用正则表达式替换字符串](text/str_replace.py)
 
 使用：[示例](demo/str_replace.md)
+
+[建标库规范自动化下载](spider/jianbiaoku/jianbiaoku.py)
+
+使用：直接用 Python 运行即可

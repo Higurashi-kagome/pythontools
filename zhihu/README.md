@@ -6,7 +6,7 @@
 python main.py
 ```
 
-![demo](res/README/demo-1612092839895.gif)
+![demo](res/README/demo-zhihu-answers.gif)
 
 ### 参考
 

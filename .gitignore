@@ -1,3 +1,5 @@
 temp/
 __pycache__
-test.py
+spider/jianbiaoku/images/
+spider/jianbiaoku/html/
+test*
