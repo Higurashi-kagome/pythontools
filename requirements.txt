@@ -2,7 +2,7 @@ xlwings==0.24.9
 win10toast==0.9
 fpdf==1.7.2
 pdfkit==0.6.1
-pywin32==227
+pywin32==301
 openpyxl==3.0.6
 pandas==1.2.2
 requests==2.25.1
