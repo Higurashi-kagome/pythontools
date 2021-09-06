@@ -141,11 +141,11 @@ if __name__ == '__main__':
     toaster = ToastNotifier()
     toaster.show_toast("下载完成"," ")
 
+    # TODO：
     # 支持非图片格式下载
     # 提示是否删除图片
-    # 关闭图片加载？应该不行，因为会有验证码需要填
+    # 关闭图片加载？不太好实现，因为会有验证码需要填
     # 支持检查 Chrome driver 配置状态，未配置好则不执行并结束程序
-    # 处理图片大小不一致导致导致图片超出 PDF 页面的问题√
 
 """ 参考 """
 # [python FPDF not sizing correctly - Stack Overflow](https://stackoverflow.com/questions/43767328/python-fpdf-not-sizing-correctly)
