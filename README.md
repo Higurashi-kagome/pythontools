@@ -9,26 +9,12 @@ pip install -r requirements.txt
 
 另：运行使用了 Selenium 的脚本前需确保 [chromedriver.exe](utils/chromedriver.exe) 和 [geckodriver.exe](utils/geckodriver.exe) 与对应浏览器版本相匹配。
 
-[微信读书笔记工具：wereader](wereader)
+| 程序                                                         | 使用                                                         |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| [微信读书笔记工具：wereader](wereader)                       | [介绍](https://www.cnblogs.com/Higurashi-kagome/p/12872060.html) |
+| [获取知乎回答](zhihu)                                        | [示例](zhihu/README.md)                                      |
+| [为本地 Markdown 文件生成目录（可在 GitHub 上正常显示）](text/toc.py) | [介绍](https://www.cnblogs.com/Higurashi-kagome/p/12724993.html) |
+| [为本地 Markdown 文件的标题编号](text/title_number.py)       | [介绍](https://www.cnblogs.com/Higurashi-kagome/p/12747857.html) |
+| [使用正则表达式替换字符串](text/str_replace.py)              | [示例](demo/str_replace.md)                                  |
+| [建标库规范自动化下载](spider/jianbiaoku/jianbiaoku.py)      | [介绍](https://www.cnblogs.com/Higurashi-kagome/p/15242418.html) |
 
-使用：[介绍](https://www.cnblogs.com/Higurashi-kagome/p/12872060.html)
-
-[获取知乎回答](zhihu)
-
-使用：[示例](zhihu/README.md)
-
-[为本地 Markdown 文件生成目录（可在 GitHub 上正常显示）](text/toc.py)
-
-使用：[示例](https://www.cnblogs.com/Higurashi-kagome/p/12724993.html)
-
-[为本地 Markdown 文件的标题编号](text/title_number.py)
-
-使用：[示例](https://www.cnblogs.com/Higurashi-kagome/p/12747857.html)
-
-[使用正则表达式替换字符串](text/str_replace.py)
-
-使用：[示例](demo/str_replace.md)
-
-[建标库规范自动化下载](spider/jianbiaoku/jianbiaoku.py)
-
-使用：直接用 Python 运行即可
