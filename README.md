@@ -7,7 +7,7 @@
 pip install -r requirements.txt
 ```
 
-另：运行使用了 selenium 的脚本前需确保 [chromedriver.exe](utils/chromedriver.exe) 和 [geckodriver.exe](utils/geckodriver.exe) 与浏览器版本相匹配。
+另：运行使用了 Selenium 的脚本前需确保 [chromedriver.exe](utils/chromedriver.exe) 和 [geckodriver.exe](utils/geckodriver.exe) 与对应浏览器版本相匹配。
 
 [微信读书笔记工具：wereader](wereader)
 
