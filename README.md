@@ -7,6 +7,8 @@
 pip install -r requirements.txt
 ```
 
+网络不好可参考[镜像站使用帮助 \| 清华大学开源软件镜像站](https://mirrors.tuna.tsinghua.edu.cn/help/pypi/)设置镜像源。
+
 另：运行使用了 Selenium 的脚本前需确保 [chromedriver.exe](utils/chromedriver.exe) 和 [geckodriver.exe](utils/geckodriver.exe) 与对应浏览器版本相匹配。
 
 | 程序                                                         | 使用                                                         |
