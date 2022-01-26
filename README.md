@@ -19,4 +19,4 @@ pip install -r requirements.txt
 | [为本地 Markdown 文件的标题编号](text/title_number.py)       | [介绍](https://www.cnblogs.com/Higurashi-kagome/p/12747857.html) |
 | [使用正则表达式替换字符串](text/str_replace.py)              | [示例](demo/str_replace.md)                                  |
 | [建标库规范自动化下载](spider/jianbiaoku/jianbiaoku.py)      | [介绍](https://www.cnblogs.com/Higurashi-kagome/p/15242418.html) |
-
+| [生成参考文档索引](text/references_doc/references_doc.py)                                         | [演示](text/references_doc/references_doc.gif)                                                     |
