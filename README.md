@@ -14,7 +14,7 @@ pip install -r requirements.txt
 | 程序                                                         | 使用                                                         |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | [微信读书笔记工具：wereader](wereader)                       | [介绍](https://www.cnblogs.com/Higurashi-kagome/p/12872060.html) |
-| [获取知乎回答](zhihu)                                        | [示例](zhihu/README.md)                                      |
+| [获取知乎回答（已失效）](zhihu)                                        | [示例](zhihu/README.md)                                      |
 | [为本地 Markdown 文件生成目录（可在 GitHub 上正常显示）](text/toc.py) | [介绍](https://www.cnblogs.com/Higurashi-kagome/p/12724993.html) |
 | [为本地 Markdown 文件的标题编号](text/title_number.py)       | [介绍](https://www.cnblogs.com/Higurashi-kagome/p/12747857.html) |
 | [使用正则表达式替换字符串](text/str_replace.py)              | [示例](demo/str_replace.md)                                  |
