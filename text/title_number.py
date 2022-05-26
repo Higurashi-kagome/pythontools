@@ -1,7 +1,9 @@
+from io import TextIOWrapper
 import sys
 import os
 import time
 import re
+from unittest import result
 
 headline = ['#','##','###','####','#####','######']
 title_sign_list = []
@@ -12,7 +14,7 @@ is_continue = 'n'
 suf = '.'
 
 """给某一行添加编号"""
-def add_number_for_line(line_which_is_title,title_sign):
+def add_number_for_line(line_which_is_title: str,title_sign: str):
     global suf
     global is_continue
     global title_sign_list
@@ -89,34 +91,44 @@ def add_number_for_line(line_which_is_title,title_sign):
                             title_sign + ' ',title_sign + ' ' + number_pre + str(int(number_suf) + 1) + suf + ' '))
                     return titles_added_number[-1]
 
+""" 
+判断某行是否需要添加编号（是否为标题行）
+是一个标题时返回标题开头的井号，不是一个标题时或者返回空字符串
+——不完备
+ """
+def get_title_sign(line: str):
+    result = re.compile('(^#+) [^\s]').search(line)
+    if result and result.group(1) in headline:
+        return result.group(1)
+    else:
+        return ""
 
-"""给传入内容添加编号"""
-def create_lines_with_number(lines_in_file):
-    for i in range(len(lines_in_file)):
-        title_sign = lines_in_file[i].lstrip().split(' ')
-        if title_sign[0] in headline:
-            lines_in_file[i] = add_number_for_line(lines_in_file[i],title_sign[0])
-    return lines_in_file
+
+"""给传入文件添加编号，返回行数据"""
+def get_lines_with_number(f: TextIOWrapper):
+    lines = f.readlines()
+    f.close()
+    for i in range(len(lines)):
+        title_sign = get_title_sign(lines[i])
+        if title_sign in headline:
+            lines[i] = add_number_for_line(lines[i], title_sign)
+    return lines
 
 
 """生成添加了标题编号的文件"""
-def create_markdown_file_with_number(f,file_name):
-    lines_in_file = []
-    lines_in_file_with_number = []
-    lines_in_file = f.readlines()
-    f.close()
-    lines_in_file_with_number = create_lines_with_number(lines_in_file)
+def create_markdown_file_with_number(f: TextIOWrapper, file_name: str):
+    lines_with_number = get_lines_with_number(f)
     # 根据原文件名生成标题添加了序号的文件的文件名
     markdown_file_with_number = os.getcwd() + '\\' + file_name[::-1].split('.',1)[1][::-1] + '_withNum.md'
     if not os.path.exists(markdown_file_with_number):
         with open(markdown_file_with_number, 'w+',encoding='utf-8') as f:
-            for line in lines_in_file_with_number:
+            for line in lines_with_number:
                 f.write(line)
             print('文件已生成')
     else:
         if input('文件名重复，是否覆盖 ' + markdown_file_with_number + ' (y/n)').lower() == 'y':
             with open(markdown_file_with_number, 'w+',encoding='utf-8') as f:
-                for line in lines_in_file_with_number:
+                for line in lines_with_number:
                     f.write(line)
                 print('文件已生成')
         else:
@@ -144,7 +156,7 @@ if len(sys.argv) < 2:
             os._exit(0)
 else:
     file_name = sys.argv[1]
-if os.path.exists(file_name):
+if os.path.exists(file_name) and os.path.isfile(file_name):
     with open(file_name,'r',encoding='utf-8') as f:
         create_markdown_file_with_number(f,file_name)
 else:
