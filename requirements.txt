@@ -10,7 +10,7 @@ jieba==0.42.1
 tqdm==4.56.0
 numpy==1.21.0
 selenium==3.141.0
-lxml==4.6.5
+lxml==4.9.1
 pyperclip==1.8.1
 Pillow==9.0.1
 PyQt5==5.15.4
