@@ -8,7 +8,7 @@ pandas==1.2.2
 requests==2.25.1
 jieba==0.42.1
 tqdm==4.56.0
-numpy==1.21.0
+numpy==1.22.0
 selenium==3.141.0
 lxml==4.9.1
 pyperclip==1.8.1
