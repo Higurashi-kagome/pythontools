@@ -31,7 +31,27 @@ def create_file(file_name, path=sys.path[0]):
         print(e)
     return file_path
 
+# 递归获得文件夹下的文件路径列表
+# ref: https://blog.csdn.net/zyx_ly/article/details/87272314
+def gci(filepath, file_list = []):
+    #遍历filepath下所有文件，包括子目录
+    files = os.listdir(filepath)
+    for fi in files:
+        fi_d = os.path.join(filepath,fi)
+        if os.path.isdir(fi_d):
+            file_list = gci(fi_d, file_list)
+        else:
+            path = os.path.join(filepath, fi_d)
+            file_list.append(path)
+    return file_list
+ 
+#递归遍历/root目录下所有文件
+
+
 if __name__ == '__main__':
-    print(create_file("test1"))
-    print(create_dir("test2"))
+    # print(create_file("test1"))
+    # print(create_dir("test2"))
+    # file_list = gci(r'C:\Users\liuhao\Documents\GitHub\pythontools')
+    # for f in file_list:
+    #     print(f)
     pass
