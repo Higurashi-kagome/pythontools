@@ -12,5 +12,5 @@ numpy==1.22.0
 selenium==3.141.0
 lxml==4.9.1
 pyperclip==1.8.1
-Pillow==9.0.1
+Pillow==9.3.0
 PyQt5==5.15.4
