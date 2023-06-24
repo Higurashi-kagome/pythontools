@@ -16,7 +16,7 @@ def get_all_files(path):
 	return all_path
 
 if __name__ == '__main__':
-    path = r"C:\Users\liuhao\Desktop\test"
+    path = r"."
     files = get_all_files(path)
     for f in files:
         print(f)
