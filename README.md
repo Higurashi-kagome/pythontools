@@ -22,4 +22,4 @@ pip install -r requirements.txt
 | [建标库规范自动化下载](spider/jianbiaoku/jianbiaoku.py)      | [介绍](https://www.cnblogs.com/Higurashi-kagome/p/15242418.html) |
 | [生成参考文档索引](text/references_doc/references_doc.py)    | [演示](text/references_doc/references_doc.gif)               |
 | [删除不被依赖的文件](text/find_dependencies.py)              |                                                              |
-| [打印指定路径下重名的文件](fs\same_name.py)                  |                                                              |
+| [打印指定路径下重名的文件](fs/same_name.py)                  |                                                              |
