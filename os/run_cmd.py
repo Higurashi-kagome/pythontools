@@ -1,5 +1,12 @@
 import os
 import re
+import subprocess
+
+# 运行 cmd 命令
+# https://blog.csdn.net/mouday/article/details/86367256
+def ex2(cmd):
+    exitcode, output = subprocess.getstatusoutput(cmd)
+    return output
 
 def ex(cmd):
     wrap_close = os.popen(cmd)
