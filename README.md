@@ -24,4 +24,4 @@ pip install -r requirements.txt
 | [删除不被依赖的文件](text/find_dependencies.py)              |                                                              |
 | [打印指定路径下重名的文件](fs/same_name.py)                  |                                                              |
 | [下载 Markdown 文件中的图片到本地](text/get_markdown_img.py) |                                                              |
-| [将当前目录中的所有 .webp 文件转换为 .jpg 格式](img/convert_webp_to_jpg.py) |                                                              |
+| [将传入路径中的所有 .webp 文件转换为 .jpg 格式（不传路径时默认当前目录）](img/convert_webp_to_jpg.py) |                                                              |
