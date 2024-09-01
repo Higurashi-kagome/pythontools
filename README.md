@@ -25,3 +25,4 @@ pip install -r requirements.txt
 | [打印指定路径下重名的文件](fs/same_name.py)                  |                                                              |
 | [下载 Markdown 文件中的图片到本地](text/get_markdown_img.py) |                                                              |
 | [将传入路径中的所有 .webp 文件转换为 .jpg 格式（不传路径时默认当前目录）](img/convert_webp_to_jpg.py) |                                                              |
+| [读取 Markdown 文件，复制其中的图片链接为注释](text/copy_image_links_to_comments.py) |                                                              |
