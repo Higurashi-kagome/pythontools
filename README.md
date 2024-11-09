@@ -27,3 +27,7 @@ pip install -r requirements.txt
 | [将传入路径中的所有 .webp 文件转换为 .jpg 格式（不传路径时默认当前目录）](img/convert_webp_to_jpg.py) |                                                              |
 | [读取 Markdown 文件，复制其中的图片链接为注释](text/copy_image_links_to_comments.py) |                                                              |
 | [解析指定格式的文本为 CSV 文本](text/save_to_csv_text/save_to_csv_text.py) |                                                              |
+| [CSV 文本转 SQL INSERT 语句](text/csv_to_sql/csv_to_sql.py)                  |                                                              |
+| [统计 SQL 中的表名](text/extract_table_names/extract_table_names.py)                  |                                                              |
+| [录制指定时长的音频](media/record_audio.py)                  |                                                              |
+| [完成照相，保存为文件](media/take_photo.py)                  |                                                              |
