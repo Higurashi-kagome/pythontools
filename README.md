@@ -33,3 +33,4 @@ pip install -r requirements.txt
 | [录制指定时长的音频](media/record_audio.py)                  |                                                              |
 | [完成照相，保存为文件](media/take_photo.py)                  |                                                              |
 | [图片转 Base64](img/image_to_base64.py)                      |                                                              |
+| [从图片中检测二维码，裁剪并保存为新文件](img/crop_qr_code.py)                      |                                                              |
