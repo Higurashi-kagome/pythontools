@@ -35,3 +35,4 @@ pip install -r requirements.txt
 | [图片转 Base64](img/image_to_base64.py)                      |                                                              |
 | [从图片中检测二维码，裁剪并保存为新文件](img/crop_qr_code.py) |                                                              |
 | [按正则表达式查找文件并打包](fs/extract_files.py)             | 查找匹配的文件并按目录结构打包 |
+| [Git 仓库提交统计工具](others/git_commit_stats.py)             | 递归查找 Git 仓库并统计指定时间后的提交记录 |
