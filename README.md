@@ -36,3 +36,5 @@ pip install -r requirements.txt
 | [从图片中检测二维码，裁剪并保存为新文件](img/crop_qr_code.py) |                                                              |
 | [按正则表达式查找文件并打包](fs/extract_files.py)             | 查找匹配的文件并按目录结构打包 |
 | [Git 仓库提交统计工具](others/git_commit_stats.py)             | 递归查找 Git 仓库并统计指定时间后的提交记录 |
+| [从剪切板克隆 Git 仓库（控制台）](others/git_clone.py)         | 读取剪切板中的 Git URL 并在指定目录下执行 clone（控制台版本） |
+| [从剪切板克隆 Git 仓库（GUI）](others/git_clone_gui.py)        | 读取剪切板中的 Git URL 并在指定目录下执行 clone（图形界面，带进度条） |
