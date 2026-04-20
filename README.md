@@ -38,3 +38,4 @@ pip install -r requirements.txt
 | [Git 仓库提交统计工具](others/git_commit_stats.py)             | 递归查找 Git 仓库并统计指定时间后的提交记录 |
 | [从剪切板克隆 Git 仓库（控制台）](others/git_clone.py)         | 读取剪切板中的 Git URL 并在指定目录下执行 clone（控制台版本） |
 | [从剪切板克隆 Git 仓库（GUI）](others/git_clone_gui.py)        | 读取剪切板中的 Git URL 并在指定目录下执行 clone（图形界面，带进度条） |
+| [GitHub 仓库初始化与推送工具](others/gh_repo_init_push.py)     | 交互式完成 gh 登录/切换账号、本地仓库初始化、提交、创建远程仓库与推送；支持大文件 Git LFS 处理，并可在结束后可选删除本次新登录账号的本地 gh 信息 |
