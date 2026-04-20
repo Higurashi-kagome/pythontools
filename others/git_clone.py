@@ -45,38 +45,13 @@ def clone_repo(repo_url, target_dir):
         print(f"Error: Target directory does not exist: {target_dir}")
         return False
 
-    original_dir = os.getcwd()
     try:
-        os.chdir(target_dir)
-        print(f"Current directory: {os.getcwd()}")
-        print(f"Cloning: {repo_url}")
-        print("-" * 60)
-
-        # Execute git clone with real-time output (shows git's native progress)
-        process = subprocess.Popen(
+        # 不捕获、不转发，让 git 直接向控制台输出（只看到 git 自己的输出）
+        completed = subprocess.run(
             ['git', 'clone', '--progress', repo_url],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            encoding='utf-8',
-            bufsize=1,
-            universal_newlines=True
+            cwd=target_dir
         )
-
-        # Print output in real-time
-        for line in process.stdout:
-            print(line, end='', flush=True)
-
-        # Wait for process to complete
-        return_code = process.wait()
-
-        print("-" * 60)
-        if return_code == 0:
-            print("Clone successful!")
-            return True
-        else:
-            print("Clone failed!")
-            return False
+        return completed.returncode == 0
 
     except FileNotFoundError:
         print("Error: git command not found. Please install Git and add to PATH")
@@ -84,8 +59,6 @@ def clone_repo(repo_url, target_dir):
     except Exception as e:
         print(f"Error: {e}")
         return False
-    finally:
-        os.chdir(original_dir)
 
 
 def main():
