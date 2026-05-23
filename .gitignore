@@ -3,3 +3,5 @@ __pycache__
 spider/jianbiaoku/images/
 spider/jianbiaoku/html/
 test*
+!tests/
+!tests/**

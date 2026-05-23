@@ -11,6 +11,7 @@ pyperclip==1.9.0
 PyQt5==5.15.11
 pywin32==306
 pyzbar==0.1.9
+questionary==2.1.1
 rarfile==4.2
 Requests==2.32.5
 selenium==4.40.0
