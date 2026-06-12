@@ -6,6 +6,7 @@ from others.sync_superpowers_skill import (
     INDEX_FILENAME,
     cleanup_legacy_skill_mirrors,
     collect_session_hashes_incremental,
+    load_session_hash_index,
 )
 
 
@@ -56,6 +57,26 @@ class TestSyncSuperpowersSkill(unittest.TestCase):
 
             second_hashes = collect_session_hashes_incremental(sessions_root, index_dir)
             self.assertEqual(second_hashes, {'0d4f5414'})
+
+    def test_collect_session_hashes_incremental_skips_indexing_files_without_hashes(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_root = Path(temp_dir)
+            sessions_root = temp_root / 'sessions'
+            index_dir = temp_root / 'state'
+
+            hashed_file = sessions_root / '2026' / '06' / '12' / 'hashed.jsonl'
+            plain_file = sessions_root / '2026' / '06' / '12' / 'plain.jsonl'
+            hashed_file.parent.mkdir(parents=True)
+
+            hashed_file.write_text('superpowers/0d4f5414/skills\n', encoding='utf-8')
+            plain_file.write_text('no superpowers hash here\n', encoding='utf-8')
+
+            hashes = collect_session_hashes_incremental(sessions_root, index_dir)
+            self.assertEqual(hashes, {'0d4f5414'})
+
+            index_payload = load_session_hash_index(index_dir / INDEX_FILENAME)
+            self.assertIn('2026/06/12/hashed.jsonl', index_payload)
+            self.assertNotIn('2026/06/12/plain.jsonl', index_payload)
 
 
 if __name__ == '__main__':

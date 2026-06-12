@@ -76,7 +76,19 @@ def load_session_hash_index(index_path: Path) -> dict[str, dict[str, object]]:
     files = payload.get("files")
     if not isinstance(files, dict):
         return {}
-    return files
+
+    sanitized_files: dict[str, dict[str, object]] = {}
+    for relative_path, record in files.items():
+        if not isinstance(relative_path, str) or not isinstance(record, dict):
+            continue
+
+        hashes = record.get("hashes")
+        if not isinstance(hashes, list) or not hashes:
+            continue
+
+        sanitized_files[relative_path] = record
+
+    return sanitized_files
 
 
 def save_session_hash_index(index_path: Path, files_index: dict[str, dict[str, object]]) -> None:
@@ -118,6 +130,19 @@ def build_session_file_record(session_file: Path, sessions_root: Path) -> dict[s
     }
 
 
+def build_session_file_scan_key(session_file: Path, sessions_root: Path) -> dict[str, object] | None:
+    try:
+        stat_result = session_file.stat()
+    except OSError:
+        return None
+
+    return {
+        "relative_path": session_file.relative_to(sessions_root).as_posix(),
+        "mtime_ns": stat_result.st_mtime_ns,
+        "size": stat_result.st_size,
+    }
+
+
 def collect_session_hashes_incremental(sessions_root: Path, index_root: Path) -> set[str]:
     hashes: set[str] = set()
     if not sessions_root.exists():
@@ -128,19 +153,19 @@ def collect_session_hashes_incremental(sessions_root: Path, index_root: Path) ->
     next_index: dict[str, dict[str, object]] = {}
 
     for session_file in sessions_root.rglob("*.jsonl"):
-        try:
-            stat_result = session_file.stat()
-        except OSError:
+        scan_key = build_session_file_scan_key(session_file, sessions_root)
+        if scan_key is None:
             continue
 
-        relative_path = session_file.relative_to(sessions_root).as_posix()
+        relative_path = str(scan_key["relative_path"])
         previous_record = previous_index.get(relative_path)
 
         if (
             previous_record
-            and previous_record.get("mtime_ns") == stat_result.st_mtime_ns
-            and previous_record.get("size") == stat_result.st_size
+            and previous_record.get("mtime_ns") == scan_key["mtime_ns"]
+            and previous_record.get("size") == scan_key["size"]
             and isinstance(previous_record.get("hashes"), list)
+            and previous_record.get("hashes")
         ):
             # 未变化的历史会话直接复用上次提取结果，避免每次启动全量重扫。
             hashes.update(str(hash_value) for hash_value in previous_record["hashes"])
@@ -153,7 +178,8 @@ def collect_session_hashes_incremental(sessions_root: Path, index_root: Path) ->
 
         current_hashes = current_record.get("hashes", [])
         hashes.update(str(hash_value) for hash_value in current_hashes)
-        next_index[relative_path] = current_record
+        if current_hashes:
+            next_index[relative_path] = current_record
 
     save_session_hash_index(index_path, next_index)
     return hashes
