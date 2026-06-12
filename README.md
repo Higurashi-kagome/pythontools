@@ -42,4 +42,3 @@ pip install -r requirements.txt
 | [Git 仓库初始化与推送工具](others/git_repo_init_push.py)        | 交互式完成 GitHub/GitLab 账号处理、本地仓库初始化、提交、创建远程仓库与推送；支持 GitLab 自建实例、namespace、Git LFS，并兼容旧的 `others/gh_repo_init_push.py` 入口 |
 | [GitHub CLI 账号管理工具](others/gh_account_manager.py)        | 交互式查看、切换、登录和删除 github.com 上的本地 gh 账号 |
 | [Windows SSH 开通脚本](others/start_ssh.py)                    | 交互式安装并启动 OpenSSH Server、配置 `sshd` 服务和防火墙、写入授权公钥，并在可用时自动启动 `cpolar tcp 22` |
-| [Codex Superpowers 技能兼容脚本](others/sync_superpowers_skill.py) | Windows 下为 Codex 的 `superpowers` curated plugin 维护稳定 skill 入口，并为历史会话中固化的旧 hash 目录创建兼容 Junction，适合挂到 Codex `SessionStart` hook 自动执行 |
