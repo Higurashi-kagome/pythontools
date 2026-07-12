@@ -23,6 +23,7 @@ pip install -r requirements.txt
 | [生成参考文档索引](text/references_doc/references_doc.py)    | [演示](text/references_doc/references_doc.gif)               |
 | [删除不被依赖的文件](text/find_dependencies.py)              |                                                              |
 | [打印指定路径下重名的文件](fs/same_name.py)                  |                                                              |
+| [在指定目录下创建日期文件夹](fs/create_date_folder.py)        | 接收目标目录和日期模板（默认 `YYYYMMDD`），如文件夹已存在则提示并触发 Windows 通知 |
 | [下载 Markdown 文件中的图片到本地](text/get_markdown_img.py) |                                                              |
 | [裁剪图片中的二维码](img/crop_qr_code.py)                    |                                                              |
 | [将传入路径中的所有 .webp 文件转换为 .jpg 格式（不传路径时默认当前目录）](img/convert_webp_to_jpg.py) |                                                              |

@@ -19,4 +19,5 @@ simple_ddl_parser==1.10.0
 sounddevice==0.4.6
 tqdm==4.66.2
 win10toast==0.9
+windows-toasts==1.3.1
 xlwings==0.30.15
