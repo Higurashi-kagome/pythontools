@@ -17,12 +17,25 @@ from others.git_repo_init_push import (
     get_visibility_options,
     parse_github_accounts,
     parse_gitlab_accounts,
+    resolve_repo_path,
     resolve_namespace,
     resolve_gitlab_commit_email,
 )
 
 
 class TestPureHelpers(unittest.TestCase):
+    def test_resolve_repo_path_uses_argument_without_prompt(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            with patch('others.git_repo_init_push.prompt_text') as mock_prompt:
+                repo_path = resolve_repo_path(temp_dir)
+
+        self.assertEqual(repo_path, Path(temp_dir))
+        mock_prompt.assert_not_called()
+
+    def test_resolve_repo_path_rejects_invalid_argument(self) -> None:
+        with self.assertRaises(CommandError):
+            resolve_repo_path('missing-repository-directory')
+
     def test_ensure_commit_can_skip_workspace_changes(self) -> None:
         calls: list[list[str]] = []
 

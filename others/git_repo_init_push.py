@@ -464,8 +464,14 @@ def get_profile(platform: str, host: str, command_runner: CommandRunner = run_co
     return get_gitlab_profile(host, command_runner=command_runner)
 
 
-def resolve_repo_path() -> Path:
+def resolve_repo_path(path_arg: str | None = None) -> Path:
     print_header('仓库路径')
+    if path_arg is not None:
+        repo_path = Path(path_arg).expanduser()
+        if repo_path.exists() and repo_path.is_dir():
+            return repo_path
+        raise CommandError(f'目录不存在或不是有效目录：{repo_path}')
+
     default_path = os.getcwd()
     while True:
         repo_path = Path(prompt_text('请输入需要初始化并推送的本地目录', default=default_path)).expanduser()
@@ -886,7 +892,7 @@ def main() -> int:
         host = resolve_host(platform)
         ensure_tool_exists('gh' if platform == PLATFORM_GITHUB else 'glab')
 
-        repo_path = resolve_repo_path()
+        repo_path = resolve_repo_path(sys.argv[1] if len(sys.argv) > 1 else None)
         try:
             original_active_login = get_active_account(platform, host).login
         except CommandError:
