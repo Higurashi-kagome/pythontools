@@ -10,6 +10,7 @@ from others.git_repo_init_push import (
     Profile,
     build_lfs_patterns,
     create_gitlab_remote,
+    ensure_commit,
     gitlab_project_exists,
     get_gitlab_namespace_id,
     get_gitlab_namespaces,
@@ -22,6 +23,27 @@ from others.git_repo_init_push import (
 
 
 class TestPureHelpers(unittest.TestCase):
+    def test_ensure_commit_can_skip_workspace_changes(self) -> None:
+        calls: list[list[str]] = []
+
+        def fake_runner(
+            command: list[str],
+            cwd: Path | None = None,
+            check: bool = True,
+            capture_output: bool = True,
+            env: dict[str, str] | None = None,
+        ) -> CompletedProcess[str]:
+            calls.append(command)
+            if command == ['git', 'status', '--short']:
+                return CompletedProcess(command, 0, stdout=' M file.txt\n', stderr='')
+            return CompletedProcess(command, 0, stdout='', stderr='')
+
+        with patch('others.git_repo_init_push.prompt_yes_no', return_value=False) as mock_prompt:
+            ensure_commit(Path('.'), 'Initial commit', command_runner=fake_runner)
+
+        mock_prompt.assert_called_once_with('是否提交当前工作区改动？', default=True)
+        self.assertEqual(calls, [['git', 'status', '--short']])
+
     def test_build_lfs_patterns_groups_suffixes_and_plain_files(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             repo_path = Path(temp_dir)

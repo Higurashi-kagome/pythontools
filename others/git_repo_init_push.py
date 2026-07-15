@@ -601,7 +601,6 @@ def get_status_porcelain(repo_path: Path, command_runner: CommandRunner = run_co
 
 
 def ensure_commit(repo_path: Path, default_message: str, command_runner: CommandRunner = run_command) -> None:
-    command_runner(['git', 'add', '.'], cwd=repo_path, capture_output=False)
     status = get_status_porcelain(repo_path, command_runner=command_runner)
     if not status.strip():
         print('当前没有可提交的变更，将跳过提交。')
@@ -609,6 +608,11 @@ def ensure_commit(repo_path: Path, default_message: str, command_runner: Command
 
     print('检测到以下待提交变更：')
     print(status)
+    if not prompt_yes_no('是否提交当前工作区改动？', default=True):
+        print('已跳过提交，将基于当前最新提交继续推送。')
+        return
+
+    command_runner(['git', 'add', '.'], cwd=repo_path, capture_output=False)
     commit_message = prompt_text('请输入提交信息', default=default_message)
     command_runner(['git', 'commit', '-m', commit_message], cwd=repo_path, capture_output=False)
 
