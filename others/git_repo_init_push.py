@@ -550,11 +550,16 @@ def configure_local_identity(
     return commit_email
 
 
-def iter_large_files(repo_path: Path) -> Iterable[Path]:
-    for path in repo_path.rglob('*'):
-        if not path.is_file():
+def iter_large_files(repo_path: Path, command_runner: CommandRunner = run_command) -> Iterable[Path]:
+    result = command_runner(
+        ['git', 'ls-files', '--cached', '--others', '--exclude-standard', '-z'],
+        cwd=repo_path,
+    )
+    for relative_path in (result.stdout or '').split('\0'):
+        if not relative_path:
             continue
-        if '.git' in path.parts:
+        path = repo_path / relative_path
+        if not path.is_file():
             continue
         try:
             if path.stat().st_size > FILE_LIMIT_BYTES:
@@ -586,7 +591,7 @@ def build_lfs_patterns(repo_path: Path, files: list[Path]) -> list[str]:
 
 
 def setup_lfs_if_needed(repo_path: Path, command_runner: CommandRunner = run_command) -> None:
-    large_files = list(iter_large_files(repo_path))
+    large_files = list(iter_large_files(repo_path, command_runner=command_runner))
     if not large_files:
         print('未检测到超过 100MB 的文件，无需启用 Git LFS。')
         return

@@ -1,7 +1,7 @@
 import tempfile
 import unittest
 from pathlib import Path
-from subprocess import CompletedProcess
+from subprocess import CompletedProcess, run
 from unittest.mock import patch
 
 from others.git_repo_init_push import (
@@ -15,6 +15,7 @@ from others.git_repo_init_push import (
     get_gitlab_namespace_id,
     get_gitlab_namespaces,
     get_visibility_options,
+    iter_large_files,
     parse_github_accounts,
     parse_gitlab_accounts,
     resolve_repo_path,
@@ -69,6 +70,23 @@ class TestPureHelpers(unittest.TestCase):
             patterns = build_lfs_patterns(repo_path, [nested_plain, zip_file])
 
         self.assertEqual(patterns, ['*.zip', 'assets/bundle'])
+
+    def test_iter_large_files_uses_git_ignore_rules(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            repo_path = Path(temp_dir)
+            tracked_file = repo_path / 'tracked.bin'
+            ignored_file = repo_path / 'node_modules' / 'next-swc.node'
+            ignored_file.parent.mkdir()
+            (repo_path / '.gitignore').write_text('node_modules/\n', encoding='utf-8')
+            tracked_file.write_bytes(b'0' * 21)
+            ignored_file.write_bytes(b'0' * 21)
+            run(['git', 'init'], cwd=repo_path, check=True, capture_output=True)
+            run(['git', 'add', 'tracked.bin'], cwd=repo_path, check=True, capture_output=True)
+
+            with patch('others.git_repo_init_push.FILE_LIMIT_BYTES', 20):
+                large_files = list(iter_large_files(repo_path))
+
+        self.assertEqual(large_files, [tracked_file])
 
     def test_get_visibility_options_returns_internal_for_gitlab(self) -> None:
         self.assertEqual(get_visibility_options('github'), ['public', 'private'])
