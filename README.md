@@ -24,6 +24,7 @@ pip install -r requirements.txt
 | [删除不被依赖的文件](text/find_dependencies.py)              |                                                              |
 | [打印指定路径下重名的文件](fs/same_name.py)                  |                                                              |
 | [在指定目录下创建日期文件夹](fs/create_date_folder.py)        | 接收目标目录和日期模板（默认 `YYYYMMDD`），如文件夹已存在则提示并触发 Windows 通知 |
+| [根据压缩包结构调用 7-Zip 自动解压](fs/unzip.py)              | `python fs/unzip.py 压缩包路径` |
 | [下载 Markdown 文件中的图片到本地](text/get_markdown_img.py) |                                                              |
 | [裁剪图片中的二维码](img/crop_qr_code.py)                    |                                                              |
 | [将传入路径中的所有 .webp 文件转换为 .jpg 格式（不传路径时默认当前目录）](img/convert_webp_to_jpg.py) |                                                              |
@@ -43,3 +44,13 @@ pip install -r requirements.txt
 | [Git 仓库初始化与推送工具](others/git_repo_init_push.py)        | 交互式完成 GitHub/GitLab 账号处理、本地仓库初始化、提交、创建远程仓库与推送；支持 GitLab 自建实例、namespace、Git LFS，并兼容旧的 `others/gh_repo_init_push.py` 入口 |
 | [GitHub CLI 账号管理工具](others/gh_account_manager.py)        | 交互式查看、切换、登录和删除 github.com 上的本地 gh 账号 |
 | [Windows SSH 开通脚本](others/start_ssh.py)                    | 交互式安装并启动 OpenSSH Server、配置 `sshd` 服务和防火墙、写入授权公钥，并在可用时自动启动 `cpolar tcp 22` |
+
+### 自动解压
+
+`fs/unzip.py` 依赖本机已安装的 7-Zip。将 `7z.exe` 加入 `PATH` 后执行：
+
+```powershell
+python fs/unzip.py 压缩包路径
+```
+
+压缩包只有一个顶层目录时解压到压缩包所在目录；存在多个顶层项目时解压到以压缩包命名的目录。目标路径已存在时会终止，避免覆盖已有文件。
