@@ -1,6 +1,8 @@
+import argparse
 from pathlib import Path
 import shutil
 import subprocess
+import tempfile
 import zipfile
 
 
@@ -39,24 +41,28 @@ def copy_git_files(repo: Path, project_root: Path, stage_dir: Path) -> None:
             shutil.copy2(src, dst)
 
 
+def copy_git_metadata(repo: Path, project_root: Path, stage_dir: Path) -> None:
+    """复制仓库的 Git 元数据。
+
+    :param repo: Git 仓库目录
+    :param project_root: 打包根目录
+    :param stage_dir: 临时打包目录
+    """
+    git_path = repo / '.git'
+    target_path = stage_dir / repo.relative_to(project_root) / '.git'
+    if git_path.is_dir():
+        shutil.copytree(git_path, target_path, copy_function=shutil.copy2)
+    else:
+        target_path.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(git_path, target_path)
+
+
 def zip_dir(source_dir: Path, zip_path: Path) -> None:
     zip_path.parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zf:
         for path in source_dir.rglob('*'):
             if path.is_file():
                 zf.write(path, path.relative_to(source_dir))
-
-
-def prompt_path(message: str, default: Path | None = None) -> Path:
-    while True:
-        prompt = f'{message} [{default}]: ' if default else f'{message}: '
-        raw = input(prompt).strip().strip('"')
-        if not raw:
-            if default is not None:
-                return default
-            print('路径不能为空，请重新输入。')
-            continue
-        return Path(raw).expanduser().resolve(strict=False)
 
 
 def ensure_directory(path: Path, label: str) -> None:
@@ -66,64 +72,51 @@ def ensure_directory(path: Path, label: str) -> None:
         raise NotADirectoryError(f'{label}不是目录: {path}')
 
 
-def ensure_safe_to_delete(target: Path, work_dir: Path) -> None:
-    if target == work_dir or work_dir in target.parents:
-        return
-    raise ValueError(f'拒绝删除非工作目录下的路径: {target}')
+def archive_git_sources(project_root: Path, zip_path: Path, include_git: bool = False) -> Path:
+    """将 Git 已跟踪文件打包为 ZIP 压缩包。
 
-
-def prompt_existing_directory(message: str, default: Path | None = None) -> Path:
-    while True:
-        path = prompt_path(message, default)
-        try:
-            ensure_directory(path, '目录')
-            return path
-        except (FileNotFoundError, NotADirectoryError) as exc:
-            print(f'{exc}，请重新输入。')
-
-
-def prompt_zip_path(work_dir: Path, default_name: str) -> Path:
-    while True:
-        zip_path = prompt_path('请输入 zip 输出文件路径', work_dir / default_name)
-        if zip_path.suffix.lower() != '.zip':
-            print('输出文件必须是.zip，请重新输入。')
-            continue
-        return zip_path
-
-
-def archive_git_sources(project_root: Path, work_dir: Path, zip_path: Path) -> Path:
+    :param project_root: Git 仓库根目录
+    :param zip_path: 输出 ZIP 压缩包路径
+    :param include_git: 是否包含各仓库的 .git 元数据
+    :return: 已生成的 ZIP 压缩包路径
+    """
     ensure_directory(project_root, '项目目录')
-    work_dir.mkdir(parents=True, exist_ok=True)
-
-    stage_dir = work_dir / 'stage'
-
-    if stage_dir.exists():
-        ensure_safe_to_delete(stage_dir, work_dir)
-        shutil.rmtree(stage_dir)
-    stage_dir.mkdir(parents=True, exist_ok=True)
 
     repos = find_git_repos(project_root)
     if not repos:
         raise RuntimeError(f'未在项目目录中找到 Git 仓库: {project_root}')
 
-    for repo in repos:
-        copy_git_files(repo, project_root, stage_dir)
+    with tempfile.TemporaryDirectory(prefix='git-archive-') as temp_dir:
+        stage_dir = Path(temp_dir)
+        for repo in repos:
+            copy_git_files(repo, project_root, stage_dir)
+            if include_git:
+                copy_git_metadata(repo, project_root, stage_dir)
 
-    if zip_path.exists():
-        zip_path.unlink()
+        if zip_path.exists():
+            zip_path.unlink()
 
-    zip_dir(stage_dir, zip_path)
+        zip_dir(stage_dir, zip_path)
     return zip_path
 
 
 def main() -> None:
-    default_project_root = Path.cwd()
-    project_root = prompt_existing_directory('请输入项目根目录路径', default_project_root)
-    default_work_dir = project_root.parent / f'{project_root.name}-archive'
-    work_dir = prompt_path('请输入工作目录路径(用于暂存文件)', default_work_dir)
-    default_zip_name = f'{project_root.name}-source.zip'
-    zip_path = prompt_zip_path(work_dir, default_zip_name)
-    zip_path = archive_git_sources(project_root, work_dir, zip_path)
+    parser = argparse.ArgumentParser(description='打包 Git 仓库中已跟踪的文件')
+    parser.add_argument('project_root', type=Path, help='Git 仓库路径')
+    parser.add_argument('zip_path', type=Path, help='输出 zip 压缩包路径')
+    parser.add_argument(
+        '--include-git',
+        action='store_true',
+        help='在压缩包中包含 .git 文件夹或文件',
+    )
+    args = parser.parse_args()
+
+    project_root = args.project_root.expanduser().resolve(strict=False)
+    zip_path = args.zip_path.expanduser().resolve(strict=False)
+    if zip_path.suffix.lower() != '.zip':
+        parser.error('输出压缩包必须是 .zip 文件')
+
+    zip_path = archive_git_sources(project_root, zip_path, args.include_git)
     print(f'打包完成: {zip_path}')
 
 

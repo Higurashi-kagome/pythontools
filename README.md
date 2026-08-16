@@ -38,7 +38,7 @@ pip install -r requirements.txt
 | [从图片中检测二维码，裁剪并保存为新文件](img/crop_qr_code.py) |                                                              |
 | [按正则表达式查找文件并打包](fs/extract_files.py)             | 查找匹配的文件并按目录结构打包 |
 | [Git 仓库提交统计工具](others/git_commit_stats.py)             | 递归查找 Git 仓库并统计指定时间后的提交记录 |
-| [Git 跟踪源码打包工具](others/git_archive.py)                  | 交互式输入项目目录、工作目录和 zip 输出路径，仅打包 Git 已跟踪文件并保留目录结构 |
+| [Git 跟踪源码打包工具](others/git_archive.py)                  | 接收 Git 仓库路径和 zip 输出路径，默认仅打包 Git 已跟踪文件；传入 `--include-git` 可同时打包 .git 元数据，例如 `python others/git_archive.py 仓库路径 输出压缩包路径 --include-git` |
 | [从剪切板克隆 Git 仓库（控制台）](others/git_clone.py)         | 读取剪切板中的 Git URL 并在指定目录下执行 clone（控制台版本） |
 | [从剪切板克隆 Git 仓库（GUI）](others/git_clone_gui.py)        | 读取剪切板中的 Git URL 并在指定目录下执行 clone（图形界面，带进度条） |
 | [Git 仓库初始化与推送工具](others/git_repo_init_push.py)        | 交互式完成 GitHub/GitLab 账号处理、本地仓库初始化、提交、创建远程仓库与推送；支持 GitLab 自建实例、namespace、Git LFS，并兼容旧的 `others/gh_repo_init_push.py` 入口 |
