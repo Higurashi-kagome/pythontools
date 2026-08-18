@@ -72,12 +72,12 @@ def ensure_directory(path: Path, label: str) -> None:
         raise NotADirectoryError(f'{label}不是目录: {path}')
 
 
-def archive_git_sources(project_root: Path, zip_path: Path, include_git: bool = False) -> Path:
+def archive_git_sources(project_root: Path, zip_path: Path, include_git: bool = True) -> Path:
     """将 Git 已跟踪文件打包为 ZIP 压缩包。
 
     :param project_root: Git 仓库根目录
     :param zip_path: 输出 ZIP 压缩包路径
-    :param include_git: 是否包含各仓库的 .git 元数据
+    :param include_git: 是否包含各仓库的 .git 元数据，默认包含
     :return: 已生成的 ZIP 压缩包路径
     """
     ensure_directory(project_root, '项目目录')
@@ -105,9 +105,10 @@ def main() -> None:
     parser.add_argument('project_root', type=Path, help='Git 仓库路径')
     parser.add_argument('zip_path', type=Path, help='输出 zip 压缩包路径')
     parser.add_argument(
-        '--include-git',
-        action='store_true',
-        help='在压缩包中包含 .git 文件夹或文件',
+        '--no-git',
+        dest='include_git',
+        action='store_false',
+        help='不包含 .git 元数据（默认包含）',
     )
     args = parser.parse_args()
 
