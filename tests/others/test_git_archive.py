@@ -58,6 +58,21 @@ class TestGitArchive(unittest.TestCase):
             self.assertIn('untracked.txt', complete_names)
             self.assertNotIn('ignored.txt', complete_names)
 
+    def test_default_output_path_uses_repository_name_and_sequence(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            base = Path(temp_dir)
+            repo = base / 'project'
+            self.init_repo(repo)
+            (repo / 'tracked.txt').write_text('tracked', encoding='utf-8')
+            self.commit_all(repo, 'initial')
+            (base / 'project.zip').write_text('existing', encoding='utf-8')
+            (base / 'project-2.zip').write_text('existing', encoding='utf-8')
+
+            archive_path = archive_git_sources(repo, include_git=False)
+
+            self.assertEqual(archive_path, base / 'project-3.zip')
+            self.assertIn('tracked.txt', self.archive_names(archive_path))
+
     def test_nested_repositories_share_one_archive_without_crossing_boundaries(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             base = Path(temp_dir)

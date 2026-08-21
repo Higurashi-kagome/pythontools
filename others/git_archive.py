@@ -364,16 +364,35 @@ def ensure_directory(path: Path, label: str) -> None:
         raise NotADirectoryError(f'{label}不是目录: {path}')
 
 
+def resolve_output_path(project_root: Path, zip_path: Path | None = None) -> Path:
+    """解析输出压缩包路径，必要时为默认路径分配序号。
+
+    :param project_root: Git 仓库或项目扫描根目录
+    :param zip_path: 用户指定的输出路径，省略时自动生成
+    :return: 最终输出 ZIP 文件路径
+    """
+    if zip_path is not None:
+        return zip_path.resolve(strict=False)
+
+    archive_name = project_root.name
+    output_path = project_root.parent / f'{archive_name}.zip'
+    suffix = 2
+    while output_path.exists():
+        output_path = project_root.parent / f'{archive_name}-{suffix}.zip'
+        suffix += 1
+    return output_path
+
+
 def archive_git_sources(
     project_root: Path,
-    zip_path: Path,
+    zip_path: Path | None = None,
     include_git: bool = True,
     include_untracked: bool = False,
 ) -> Path:
     """将 Git 仓库文件打包为 ZIP 压缩包。
 
     :param project_root: Git 仓库或项目扫描根目录
-    :param zip_path: 输出 ZIP 压缩包路径
+    :param zip_path: 输出 ZIP 压缩包路径，省略时在项目目录同级自动生成
     :param include_git: 是否包含各仓库的 .git 元数据，默认包含
     :param include_untracked: 是否包含未跟踪且未被忽略的文件，默认不包含
     :return: 已生成的 ZIP 压缩包路径
@@ -381,7 +400,7 @@ def archive_git_sources(
     ensure_directory(project_root, '项目目录')
 
     project_root = project_root.resolve(strict=False)
-    zip_path = zip_path.resolve(strict=False)
+    zip_path = resolve_output_path(project_root, zip_path)
     sources = find_archive_sources(project_root, include_git)
     all_repo_roots = tuple(
         repo.resolve(strict=False)
@@ -425,7 +444,12 @@ def archive_git_sources(
 def main() -> None:
     parser = argparse.ArgumentParser(description='打包 Git 仓库文件')
     parser.add_argument('project_root', type=Path, help='Git 仓库路径')
-    parser.add_argument('zip_path', type=Path, help='输出 zip 压缩包路径')
+    parser.add_argument(
+        'zip_path',
+        type=Path,
+        nargs='?',
+        help='输出 zip 压缩包路径，省略时在仓库同级自动生成',
+    )
     parser.add_argument(
         '--no-git',
         dest='include_git',
@@ -440,8 +464,8 @@ def main() -> None:
     args = parser.parse_args()
 
     project_root = args.project_root.expanduser().resolve(strict=False)
-    zip_path = args.zip_path.expanduser().resolve(strict=False)
-    if zip_path.suffix.lower() != '.zip':
+    zip_path = args.zip_path.expanduser().resolve(strict=False) if args.zip_path else None
+    if zip_path is not None and zip_path.suffix.lower() != '.zip':
         parser.error('输出压缩包必须是 .zip 文件')
 
     zip_path = archive_git_sources(
