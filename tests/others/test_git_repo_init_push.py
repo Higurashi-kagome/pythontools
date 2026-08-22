@@ -2,14 +2,17 @@ import tempfile
 import unittest
 from pathlib import Path
 from subprocess import CompletedProcess, run
-from unittest.mock import patch
+from unittest.mock import ANY, patch
 
 from others.git_repo_init_push import (
     Account,
     CommandError,
     Profile,
     build_lfs_patterns,
+    configure_github_pages_if_requested,
+    create_github_remote,
     create_gitlab_remote,
+    enable_github_pages,
     ensure_commit,
     gitlab_project_exists,
     get_gitlab_namespace_id,
@@ -123,6 +126,145 @@ self.example.com
         self.assertEqual(len(accounts), 2)
         self.assertEqual(accounts[0], Account(login='alice', active=False, host='gitlab.com'))
         self.assertEqual(accounts[1], Account(login='bob', active=True, host='self.example.com'))
+
+
+class TestGitHubRemote(unittest.TestCase):
+    def test_create_github_remote_returns_true_when_repository_is_created(self) -> None:
+        calls: list[list[str]] = []
+
+        def fake_runner(
+            command: list[str],
+            cwd: Path | None = None,
+            check: bool = True,
+            capture_output: bool = True,
+            env: dict[str, str] | None = None,
+        ) -> CompletedProcess[str]:
+            calls.append(command)
+            return CompletedProcess(command, 0, stdout='', stderr='')
+
+        with patch('others.git_repo_init_push.has_head_commit', return_value=True), \
+             patch('others.git_repo_init_push.has_origin_remote', return_value=False), \
+             patch('others.git_repo_init_push.get_current_branch', return_value='main'):
+            created = create_github_remote(
+                repo_path=Path('.'),
+                repo_name='demo',
+                visibility='public',
+                command_runner=fake_runner,
+            )
+
+        self.assertTrue(created)
+        self.assertEqual(
+            calls,
+            [
+                [
+                    'gh',
+                    'repo',
+                    'create',
+                    'demo',
+                    '--public',
+                    '--source=.',
+                    '--remote=origin',
+                    '--push',
+                ]
+            ],
+        )
+
+    def test_create_github_remote_returns_false_when_origin_exists(self) -> None:
+        calls: list[list[str]] = []
+
+        def fake_runner(
+            command: list[str],
+            cwd: Path | None = None,
+            check: bool = True,
+            capture_output: bool = True,
+            env: dict[str, str] | None = None,
+        ) -> CompletedProcess[str]:
+            calls.append(command)
+            return CompletedProcess(command, 0, stdout='', stderr='')
+
+        with patch('others.git_repo_init_push.has_head_commit', return_value=True), \
+             patch('others.git_repo_init_push.has_origin_remote', return_value=True), \
+             patch('others.git_repo_init_push.get_current_branch', return_value='main'):
+            created = create_github_remote(
+                repo_path=Path('.'),
+                repo_name='demo',
+                visibility='public',
+                command_runner=fake_runner,
+            )
+
+        self.assertFalse(created)
+        self.assertEqual(calls, [['git', 'push', '-u', 'origin', 'main']])
+
+    def test_enable_github_pages_uses_current_branch_root_and_returns_url(self) -> None:
+        calls: list[list[str]] = []
+
+        def fake_runner(
+            command: list[str],
+            cwd: Path | None = None,
+            check: bool = True,
+            capture_output: bool = True,
+            env: dict[str, str] | None = None,
+        ) -> CompletedProcess[str]:
+            calls.append(command)
+            if command == ['gh', 'repo', 'view', '--json', 'nameWithOwner', '--jq', '.nameWithOwner']:
+                return CompletedProcess(command, 0, stdout='alice/demo\n', stderr='')
+            if command == [
+                'gh',
+                'api',
+                'repos/alice/demo/pages',
+                '--method',
+                'POST',
+                '-f',
+                'source[branch]=main',
+                '-f',
+                'source[path]=/',
+                '--jq',
+                '.html_url',
+            ]:
+                return CompletedProcess(command, 0, stdout='https://alice.github.io/demo/\n', stderr='')
+            raise AssertionError(f'Unexpected command: {command}')
+
+        with patch('others.git_repo_init_push.get_current_branch', return_value='main'):
+            pages_url = enable_github_pages(Path('.'), command_runner=fake_runner)
+
+        self.assertEqual(pages_url, 'https://alice.github.io/demo/')
+        self.assertEqual(
+            calls,
+            [
+                ['gh', 'repo', 'view', '--json', 'nameWithOwner', '--jq', '.nameWithOwner'],
+                [
+                    'gh',
+                    'api',
+                    'repos/alice/demo/pages',
+                    '--method',
+                    'POST',
+                    '-f',
+                    'source[branch]=main',
+                    '-f',
+                    'source[path]=/',
+                    '--jq',
+                    '.html_url',
+                ],
+            ],
+        )
+
+    def test_configure_github_pages_does_not_prompt_for_existing_repository(self) -> None:
+        with patch('others.git_repo_init_push.prompt_yes_no') as mock_prompt, \
+             patch('others.git_repo_init_push.enable_github_pages') as mock_enable:
+            pages_url = configure_github_pages_if_requested(Path('.'), 'github', False)
+
+        self.assertIsNone(pages_url)
+        mock_prompt.assert_not_called()
+        mock_enable.assert_not_called()
+
+    def test_configure_github_pages_prompts_only_for_new_github_repository(self) -> None:
+        with patch('others.git_repo_init_push.prompt_yes_no', return_value=True) as mock_prompt, \
+             patch('others.git_repo_init_push.enable_github_pages', return_value='https://alice.github.io/demo/') as mock_enable:
+            pages_url = configure_github_pages_if_requested(Path('.'), 'github', True)
+
+        self.assertEqual(pages_url, 'https://alice.github.io/demo/')
+        mock_prompt.assert_called_once_with('是否开启 GitHub Pages？', default=False)
+        mock_enable.assert_called_once_with(Path('.'), command_runner=ANY)
 
 
 class TestGitLabRemote(unittest.TestCase):

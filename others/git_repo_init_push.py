@@ -684,7 +684,115 @@ def normalize_gitlab_origin_to_https(
         )
 
 
-def create_github_remote(repo_path: Path, repo_name: str, visibility: str, command_runner: CommandRunner = run_command) -> None:
+def get_github_repository_name(
+    repo_path: Path,
+    command_runner: CommandRunner = run_command,
+) -> str:
+    """获取当前 GitHub 仓库的完整名称。
+
+    参数：
+        repo_path: 本地仓库目录
+        command_runner: 执行外部命令的函数
+
+    返回：
+        GitHub 仓库的完整名称，格式为 owner/repository
+
+    异常：
+        CommandError: 无法获取仓库名称时抛出
+    """
+    result = command_runner(
+        ['gh', 'repo', 'view', '--json', 'nameWithOwner', '--jq', '.nameWithOwner'],
+        cwd=repo_path,
+    )
+    repository_name = (result.stdout or '').strip()
+    if not repository_name:
+        raise CommandError('无法获取 GitHub 仓库的完整名称。')
+    return repository_name
+
+
+def enable_github_pages(
+    repo_path: Path,
+    command_runner: CommandRunner = run_command,
+) -> str:
+    """为当前 GitHub 仓库开启 Pages，并返回 Pages 地址。
+
+    参数：
+        repo_path: 本地仓库目录
+        command_runner: 执行外部命令的函数
+
+    返回：
+        GitHub Pages 网站地址
+
+    异常：
+        CommandError: Pages 开启失败或未返回网站地址时抛出
+    """
+    branch = get_current_branch(repo_path, command_runner=command_runner)
+    repository_name = get_github_repository_name(repo_path, command_runner=command_runner)
+    result = command_runner(
+        [
+            'gh',
+            'api',
+            f'repos/{repository_name}/pages',
+            '--method',
+            'POST',
+            '-f',
+            f'source[branch]={branch}',
+            '-f',
+            'source[path]=/',
+            '--jq',
+            '.html_url',
+        ],
+        cwd=repo_path,
+    )
+    pages_url = (result.stdout or '').strip()
+    if not pages_url or pages_url == 'null':
+        raise CommandError('GitHub Pages 已请求开启，但未获取到 Pages 地址。')
+    return pages_url
+
+
+def configure_github_pages_if_requested(
+    repo_path: Path,
+    platform: str,
+    repository_created: bool,
+    command_runner: CommandRunner = run_command,
+) -> str | None:
+    """仅在首次创建 GitHub 仓库后询问并配置 GitHub Pages。
+
+    参数：
+        repo_path: 本地仓库目录
+        platform: 当前远程平台
+        repository_created: 本次是否新建了远程仓库
+        command_runner: 执行外部命令的函数
+
+    返回：
+        开启成功时返回 Pages 地址，否则返回 None
+    """
+    if platform != PLATFORM_GITHUB or not repository_created:
+        return None
+    if not prompt_yes_no('是否开启 GitHub Pages？', default=False):
+        print('已跳过 GitHub Pages 开启。')
+        return None
+
+    pages_url = enable_github_pages(repo_path, command_runner=command_runner)
+    print(f'GitHub Pages 地址: {pages_url}')
+    return pages_url
+
+
+def create_github_remote(repo_path: Path, repo_name: str, visibility: str, command_runner: CommandRunner = run_command) -> bool:
+    """创建 GitHub 仓库并推送代码，或推送到已有 origin。
+
+    参数：
+        repo_path: 本地仓库目录
+        repo_name: 远程仓库名称
+        visibility: 远程仓库可见性
+        command_runner: 执行外部命令的函数
+
+    返回：
+        本次新建远程仓库时返回 True，使用已有 origin 时返回 False
+
+    异常：
+        CommandError: 本地仓库没有提交时抛出
+    """
     if not has_head_commit(repo_path, command_runner=command_runner):
         raise CommandError('当前仓库还没有任何提交，无法创建远程仓库并推送。')
 
@@ -692,7 +800,7 @@ def create_github_remote(repo_path: Path, repo_name: str, visibility: str, comma
     if has_origin_remote(repo_path, command_runner=command_runner):
         print('检测到已存在 origin，直接推送当前分支。')
         command_runner(['git', 'push', '-u', 'origin', branch], cwd=repo_path, capture_output=False)
-        return
+        return False
 
     visibility_flag = f'--{visibility}'
     command_runner(
@@ -709,6 +817,7 @@ def create_github_remote(repo_path: Path, repo_name: str, visibility: str, comma
         cwd=repo_path,
         capture_output=False,
     )
+    return True
 
 
 def create_gitlab_remote(
@@ -774,10 +883,9 @@ def create_or_push_remote(
     host: str,
     namespace: str | None = None,
     command_runner: CommandRunner = run_command,
-) -> None:
+) -> bool:
     if platform == PLATFORM_GITHUB:
-        create_github_remote(repo_path, repo_name, visibility, command_runner=command_runner)
-        return
+        return create_github_remote(repo_path, repo_name, visibility, command_runner=command_runner)
     create_gitlab_remote(
         repo_path,
         repo_name,
@@ -786,6 +894,7 @@ def create_or_push_remote(
         namespace,
         command_runner=command_runner,
     )
+    return False
 
 
 def get_visibility_options(platform: str) -> list[str]:
@@ -930,7 +1039,15 @@ def main() -> int:
         commit_email = configure_local_identity(repo_path, profile, platform)
         setup_lfs_if_needed(repo_path)
         ensure_commit(repo_path, default_message)
-        create_or_push_remote(platform, repo_path, repo_name, visibility, host, namespace=namespace)
+        repository_created = create_or_push_remote(
+            platform,
+            repo_path,
+            repo_name,
+            visibility,
+            host,
+            namespace=namespace,
+        )
+        configure_github_pages_if_requested(repo_path, platform, repository_created)
 
         print_header('完成')
         print('仓库初始化、提交和推送已完成。')
