@@ -1,4 +1,5 @@
 import argparse
+from collections.abc import Callable
 from dataclasses import dataclass
 import os
 from pathlib import Path
@@ -14,6 +15,20 @@ class ArchiveSource:
 
     repo: Path
     archive_root: Path
+
+
+def report_progress(
+    on_progress: Callable[[str], None] | None,
+    message: str,
+) -> None:
+    """向调用方报告归档处理进度。
+
+    :param on_progress: 接收进度文本的回调函数
+    :param message: 本次进度文本
+    :return: 无返回值
+    """
+    if on_progress is not None:
+        on_progress(message)
 
 
 def find_git_repos(project_root: Path) -> list[Path]:
@@ -447,6 +462,7 @@ def archive_git_sources(
     include_git: bool = True,
     include_untracked: bool = False,
     include_merged_worktrees: bool = False,
+    on_progress: Callable[[str], None] | None = None,
 ) -> Path:
     """将 Git 仓库文件打包为 ZIP 压缩包。
 
@@ -455,6 +471,7 @@ def archive_git_sources(
     :param include_git: 是否包含各仓库的 .git 元数据，默认包含
     :param include_untracked: 是否包含未跟踪且未被忽略的文件，默认不包含
     :param include_merged_worktrees: 是否包含已合并的 linked worktree，默认不包含
+    :param on_progress: 接收归档处理进度的回调函数，默认不输出
     :return: 已生成的 ZIP 压缩包路径
     """
     ensure_directory(project_root, '项目目录')
@@ -466,6 +483,7 @@ def archive_git_sources(
         include_git,
         include_merged_worktrees,
     )
+    report_progress(on_progress, f'已发现 {len(sources)} 个待打包工作目录')
     all_repo_roots = tuple(
         repo.resolve(strict=False)
         for repo in find_git_repos(project_root)
@@ -474,34 +492,51 @@ def archive_git_sources(
 
     with tempfile.TemporaryDirectory(prefix='git-archive-') as temp_dir:
         stage_dir = Path(temp_dir)
-        for source in sources:
+        for source_index, source in enumerate(sources, start=1):
+            progress_prefix = f'[{source_index}/{len(sources)}] {source.repo}'
+            report_progress(on_progress, f'{progress_prefix} 开始处理')
             excluded_roots = tuple(
                 repo_root
                 for repo_root in all_repo_roots
                 if repo_root != source.repo and repo_root.is_relative_to(source.repo)
             )
+            tracked_files = git_ls_files(source.repo)
+            report_progress(
+                on_progress,
+                f'{progress_prefix} 复制 {len(tracked_files)} 个已跟踪文件',
+            )
             copy_file_list(
                 source.repo,
                 source.archive_root,
-                git_ls_files(source.repo),
+                tracked_files,
                 stage_dir,
                 excluded_path=zip_path,
             )
             if include_untracked:
-                copy_untracked_files(
+                untracked_files = git_ls_untracked_files(source.repo)
+                report_progress(
+                    on_progress,
+                    f'{progress_prefix} 复制 {len(untracked_files)} 个未跟踪文件',
+                )
+                copy_file_list(
                     source.repo,
                     source.archive_root,
+                    untracked_files,
                     stage_dir,
                     excluded_path=zip_path,
                     excluded_roots=excluded_roots,
+                    fail_if_missing=True,
                 )
             if include_git:
+                report_progress(on_progress, f'{progress_prefix} 复制 Git 元数据')
                 copy_git_metadata_to(source.repo, source.archive_root, stage_dir)
 
         if zip_path.exists():
             zip_path.unlink()
 
+        report_progress(on_progress, f'正在生成 ZIP: {zip_path}')
         zip_dir(stage_dir, zip_path)
+    report_progress(on_progress, f'打包完成: {zip_path}')
     return zip_path
 
 
@@ -530,6 +565,19 @@ def main() -> None:
         action='store_true',
         help='同时包含已合并到主工作目录的关联 worktree（默认不包含）',
     )
+    parser.add_argument(
+        '--progress',
+        action='store_true',
+        dest='progress',
+        help='打印归档处理进度（默认开启）',
+    )
+    parser.add_argument(
+        '--no-progress',
+        action='store_false',
+        dest='progress',
+        help='不打印归档处理进度',
+    )
+    parser.set_defaults(progress=True)
     args = parser.parse_args()
 
     project_root = args.project_root.expanduser().resolve(strict=False)
@@ -543,8 +591,8 @@ def main() -> None:
         args.include_git,
         args.include_untracked,
         args.include_merged_worktrees,
+        print if args.progress else None,
     )
-    print(f'打包完成: {zip_path}')
 
 
 if __name__ == '__main__':

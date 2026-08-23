@@ -2,9 +2,10 @@ import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 from zipfile import ZipFile
 
-from others.git_archive import archive_git_sources
+from others.git_archive import archive_git_sources, main
 
 
 class TestGitArchive(unittest.TestCase):
@@ -72,6 +73,56 @@ class TestGitArchive(unittest.TestCase):
 
             self.assertEqual(archive_path, base / 'project-3.zip')
             self.assertIn('tracked.txt', self.archive_names(archive_path))
+
+    def test_progress_callback_reports_archive_stages(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            base = Path(temp_dir)
+            repo = base / 'repo'
+            self.init_repo(repo)
+            (repo / 'tracked.txt').write_text('tracked', encoding='utf-8')
+            self.commit_all(repo, 'initial')
+            (repo / 'untracked.txt').write_text('untracked', encoding='utf-8')
+
+            messages = []
+            archive_path = base / 'progress.zip'
+            archive_git_sources(
+                repo,
+                archive_path,
+                include_untracked=True,
+                on_progress=messages.append,
+            )
+
+            self.assertEqual(messages[0], '已发现 1 个待打包工作目录')
+            self.assertTrue(any('复制 1 个已跟踪文件' in message for message in messages))
+            self.assertTrue(any('复制 1 个未跟踪文件' in message for message in messages))
+            self.assertTrue(any('复制 Git 元数据' in message for message in messages))
+            self.assertEqual(messages[-1], f'打包完成: {archive_path}')
+
+    def test_progress_option_passes_print_callback_to_archive(self) -> None:
+        with mock.patch('others.git_archive.archive_git_sources') as archive:
+            with mock.patch('builtins.print') as print_mock:
+                with mock.patch(
+                    'sys.argv',
+                    ['git_archive.py', 'project'],
+                ):
+                    archive.return_value = Path('project.zip')
+                    main()
+
+        self.assertIs(archive.call_args.args[-1], print_mock)
+        print_mock.assert_not_called()
+
+    def test_no_progress_option_disables_print_callback(self) -> None:
+        with mock.patch('others.git_archive.archive_git_sources') as archive:
+            with mock.patch('builtins.print') as print_mock:
+                with mock.patch(
+                    'sys.argv',
+                    ['git_archive.py', 'project', '--no-progress'],
+                ):
+                    archive.return_value = Path('project.zip')
+                    main()
+
+        self.assertIsNone(archive.call_args.args[-1])
+        print_mock.assert_not_called()
 
     def test_nested_repositories_share_one_archive_without_crossing_boundaries(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
