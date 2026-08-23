@@ -122,14 +122,56 @@ def is_linked_worktree(repo: Path) -> bool:
     return resolve_git_path(repo, git_dirs[0]) != resolve_git_path(repo, git_dirs[1])
 
 
-def find_linked_worktrees(repo: Path) -> list[tuple[Path, Path]]:
+def get_main_repo(repo: Path) -> Path:
+    """获取 Git 共享目录对应的主工作目录。
+
+    :param repo: 主仓库或其 linked worktree 目录
+    :return: 主工作目录
+    """
+    common_dir = run_git(repo, 'rev-parse', '--git-common-dir').decode('utf-8').strip()
+    return resolve_git_path(repo, common_dir).parent
+
+
+def is_worktree_merged(worktree: Path, main_repo: Path) -> bool:
+    """判断 linked worktree 的当前提交是否已合入主工作目录。
+
+    :param worktree: 待判断的 linked worktree 目录
+    :param main_repo: 主工作目录
+    :return: 当前提交是否为主工作目录 HEAD 的祖先
+    """
+    try:
+        worktree_head = run_git(worktree, 'rev-parse', 'HEAD').decode('utf-8').strip()
+    except subprocess.CalledProcessError:
+        return False
+
+    result = subprocess.run(
+        [
+            'git',
+            '-C',
+            os.fspath(main_repo),
+            'merge-base',
+            '--is-ancestor',
+            worktree_head,
+            'HEAD',
+        ],
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    return result.returncode == 0
+
+
+def find_linked_worktrees(
+    repo: Path,
+    include_merged_worktrees: bool = False,
+) -> list[tuple[Path, Path]]:
     """查找仓库登记且当前仍存在的 linked worktree。
 
     :param repo: 主仓库或其 linked worktree 目录
-    :return: linked worktree 目录及其主仓库目录
+    :param include_merged_worktrees: 是否包含已合入主工作目录的 worktree
+    :return: 需要打包的 linked worktree 目录及其主仓库目录
     """
-    common_dir = run_git(repo, 'rev-parse', '--git-common-dir').decode('utf-8').strip()
-    main_repo = resolve_git_path(repo, common_dir).parent
+    main_repo = get_main_repo(repo)
     output = run_git(repo, 'worktree', 'list', '--porcelain')
     listed_worktrees = []
     for line in output.decode('utf-8').splitlines():
@@ -145,6 +187,8 @@ def find_linked_worktrees(repo: Path) -> list[tuple[Path, Path]]:
         if worktree == repo.resolve(strict=False) or worktree == main_repo:
             continue
         if is_linked_worktree(worktree):
+            if not include_merged_worktrees and is_worktree_merged(worktree, main_repo):
+                continue
             worktrees.append((worktree, main_repo))
 
     return sorted(set(worktrees), key=lambda item: str(item[0]).casefold())
@@ -168,11 +212,16 @@ def allocate_archive_name(preferred: str, used_names: set[str]) -> str:
     return candidate
 
 
-def find_archive_sources(project_root: Path, include_git: bool) -> list[ArchiveSource]:
+def find_archive_sources(
+    project_root: Path,
+    include_git: bool,
+    include_merged_worktrees: bool = False,
+) -> list[ArchiveSource]:
     """收集需要打包的仓库、项目内 worktree 和外部 worktree。
 
     :param project_root: 项目扫描根目录
     :param include_git: 是否包含 Git 元数据和 linked worktree
+    :param include_merged_worktrees: 是否包含已合并的 linked worktree
     :return: 待打包的工作目录及其压缩包内根路径
     """
     project_root = project_root.resolve(strict=False)
@@ -184,8 +233,14 @@ def find_archive_sources(project_root: Path, include_git: bool) -> list[ArchiveS
     linked_flags = {repo: is_linked_worktree(repo) for repo in repos}
 
     for repo in repos:
-        if repo != project_root and linked_flags[repo] and not include_git:
-            continue
+        if repo != project_root and linked_flags[repo]:
+            if not include_git:
+                continue
+            if not include_merged_worktrees and is_worktree_merged(
+                repo,
+                get_main_repo(repo),
+            ):
+                continue
         sources[repo] = ArchiveSource(
             repo=repo,
             archive_root=repo.relative_to(project_root),
@@ -196,7 +251,10 @@ def find_archive_sources(project_root: Path, include_git: bool) -> list[ArchiveS
 
     external_worktrees: dict[Path, Path] = {}
     for repo in repos:
-        for worktree, main_repo in find_linked_worktrees(repo):
+        for worktree, main_repo in find_linked_worktrees(
+            repo,
+            include_merged_worktrees,
+        ):
             if worktree in sources:
                 continue
             if worktree.is_relative_to(project_root):
@@ -388,6 +446,7 @@ def archive_git_sources(
     zip_path: Path | None = None,
     include_git: bool = True,
     include_untracked: bool = False,
+    include_merged_worktrees: bool = False,
 ) -> Path:
     """将 Git 仓库文件打包为 ZIP 压缩包。
 
@@ -395,13 +454,18 @@ def archive_git_sources(
     :param zip_path: 输出 ZIP 压缩包路径，省略时在项目目录同级自动生成
     :param include_git: 是否包含各仓库的 .git 元数据，默认包含
     :param include_untracked: 是否包含未跟踪且未被忽略的文件，默认不包含
+    :param include_merged_worktrees: 是否包含已合并的 linked worktree，默认不包含
     :return: 已生成的 ZIP 压缩包路径
     """
     ensure_directory(project_root, '项目目录')
 
     project_root = project_root.resolve(strict=False)
     zip_path = resolve_output_path(project_root, zip_path)
-    sources = find_archive_sources(project_root, include_git)
+    sources = find_archive_sources(
+        project_root,
+        include_git,
+        include_merged_worktrees,
+    )
     all_repo_roots = tuple(
         repo.resolve(strict=False)
         for repo in find_git_repos(project_root)
@@ -461,6 +525,11 @@ def main() -> None:
         action='store_true',
         help='同时包含未跟踪且未被忽略的文件（默认不包含）',
     )
+    parser.add_argument(
+        '--include-merged-worktrees',
+        action='store_true',
+        help='同时包含已合并到主工作目录的关联 worktree（默认不包含）',
+    )
     args = parser.parse_args()
 
     project_root = args.project_root.expanduser().resolve(strict=False)
@@ -473,6 +542,7 @@ def main() -> None:
         zip_path,
         args.include_git,
         args.include_untracked,
+        args.include_merged_worktrees,
     )
     print(f'打包完成: {zip_path}')
 

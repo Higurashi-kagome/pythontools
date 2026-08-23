@@ -110,6 +110,8 @@ class TestGitArchive(unittest.TestCase):
             self.commit_all(root, 'initial')
             worktree.parent.mkdir(parents=True)
             self.run_git(root, 'worktree', 'add', '-b', 'feature', str(worktree))
+            (worktree / 'feature.txt').write_text('feature', encoding='utf-8')
+            self.commit_all(worktree, 'feature')
             (root / 'root-untracked.txt').write_text('root', encoding='utf-8')
             (worktree / 'worktree-untracked.txt').write_text('worktree', encoding='utf-8')
 
@@ -131,6 +133,58 @@ class TestGitArchive(unittest.TestCase):
             no_git_names = self.archive_names(no_git_archive)
             self.assertIn('root-untracked.txt', no_git_names)
             self.assertFalse(any(name.startswith('__worktrees__/') for name in no_git_names))
+
+    def test_merged_external_worktree_is_skipped_by_default(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            base = Path(temp_dir)
+            root = base / 'repo'
+            worktree = base / 'outside' / 'merged'
+            self.init_repo(root)
+            (root / 'tracked.txt').write_text('tracked', encoding='utf-8')
+            self.commit_all(root, 'initial')
+            worktree.parent.mkdir(parents=True)
+            self.run_git(root, 'worktree', 'add', '-b', 'merged', str(worktree))
+
+            archive_path = base / 'default.zip'
+            archive_git_sources(root, archive_path)
+            names = self.archive_names(archive_path)
+            prefix = f'__worktrees__/{root.name}/{worktree.name}/'
+            self.assertFalse(any(name.startswith(prefix) for name in names))
+
+            complete_archive = base / 'complete.zip'
+            archive_git_sources(
+                root,
+                complete_archive,
+                include_merged_worktrees=True,
+            )
+            complete_names = self.archive_names(complete_archive)
+            self.assertIn(f'{prefix}tracked.txt', complete_names)
+
+    def test_merged_worktree_inside_project_is_skipped_by_default(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            base = Path(temp_dir)
+            root = base / 'repo'
+            worktree = root / 'worktrees' / 'merged'
+            self.init_repo(root)
+            (root / 'tracked.txt').write_text('tracked', encoding='utf-8')
+            self.commit_all(root, 'initial')
+            worktree.parent.mkdir(parents=True)
+            self.run_git(root, 'worktree', 'add', '-b', 'merged', str(worktree))
+
+            archive_path = base / 'default.zip'
+            archive_git_sources(root, archive_path)
+            names = self.archive_names(archive_path)
+            prefix = 'worktrees/merged/'
+            self.assertFalse(any(name.startswith(prefix) for name in names))
+
+            complete_archive = base / 'complete.zip'
+            archive_git_sources(
+                root,
+                complete_archive,
+                include_merged_worktrees=True,
+            )
+            complete_names = self.archive_names(complete_archive)
+            self.assertIn(f'{prefix}tracked.txt', complete_names)
 
     def test_linked_worktree_as_project_root_remains_archivable_with_no_git(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -173,6 +227,8 @@ class TestGitArchive(unittest.TestCase):
             self.run_git(main_repo, 'worktree', 'add', '-b', 'feature-c', str(third_worktree))
             (second_worktree / 'second.txt').write_text('second', encoding='utf-8')
             (third_worktree / 'third.txt').write_text('third', encoding='utf-8')
+            self.commit_all(second_worktree, 'second')
+            self.commit_all(third_worktree, 'third')
 
             archive_path = base / 'linked-root.zip'
             archive_git_sources(first_worktree, archive_path, include_untracked=True)
